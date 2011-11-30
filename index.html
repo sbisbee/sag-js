@@ -1,0 +1,12 @@
+<html>
+  <body>
+    <script src="./src/sag.js"></script>
+    <script>
+    var couch = sag.server('sbisbee.cloudant.com', '5984');
+
+    couch.get('/', function(r) {
+      console.log(r);
+    });
+    </script>
+  </body>
+</html>
