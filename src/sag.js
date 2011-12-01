@@ -56,10 +56,21 @@
         ).end();
       }
       else if(xmlHTTP) {
-        // browser xhr
+        // Browser xhr magik
         xmlHTTP.onreadystatechange = function() {
           if(this.readyState === 4 && this.status > 0) {
-            onResponse(this.status, {}, this.response, callback);
+            var headers = {};
+            var rawHeaders = this.getAllResponseHeaders().split('\n');
+
+            for(var i in rawHeaders) {
+              rawHeaders[i] = rawHeaders[i].split(': ');
+
+              if(rawHeaders[i][1]) {
+                headers[rawHeaders[i][0]] = rawHeaders[i][1];
+              }
+            }
+
+            onResponse(this.status, headers, this.response, callback);
           }
         };
 

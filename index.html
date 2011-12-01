@@ -2,9 +2,9 @@
   <body>
     <script src="./src/sag.js"></script>
     <script>
-    var couch = sag.server('sbisbee.cloudant.com', '5984');
+    var couch = sag.server('localhost', '80');
 
-    couch.get('/', function(r) {
+    couch.get('/db', function(r) {
       console.log(r);
     });
     </script>
