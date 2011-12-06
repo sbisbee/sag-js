@@ -4,6 +4,7 @@
     var xmlHTTP;
 
     var decodeJSON = true;
+    var currDatabase;
 
     if(typeof XMLHttpRequest === 'function') {
       xmlHTTP = new XMLHttpRequest();
@@ -44,6 +45,7 @@
         // Node.JS http module
         http.request(
           {
+            method: method,
             host: host,
             port: port,
             url: path,
@@ -51,6 +53,8 @@
           },
           function(res) {
             var resBody = '';
+
+            res.setEncoding('utf8');
 
             res.on('data', function(chunk) {
               resBody += chunk;
@@ -60,7 +64,9 @@
               onResponse(res.statusCode, res.headers, resBody, callback);
             });
           }
-        ).end();
+        ).on('error', function(e) {
+          console.log('problem with request: ' + e);
+        }).end();
       }
       else if(xmlHTTP) {
         // Browser xhr magik
@@ -98,6 +104,10 @@
 
     var publicThat = {
       get: function(opts) {
+        if(!currDatabase) {
+          throw 'You must call setDatabase() first.';
+        }
+
         if(typeof opts !== 'object') {
           throw 'invalid opts object';
         }
@@ -114,10 +124,21 @@
           opts.url = '/' + opts.url;
         }
 
-        procPacket('GET', opts.url, null, null, opts.callback);
+        procPacket('GET', '/' + currDatabase + opts.url, null, null, opts.callback);
       },
+
       decode: function(d) {
         decodeJSON = !! d;
+        return publicThat;
+      },
+
+      setDatabase: function(db) {
+        if(typeof db !== 'string' || db.length <= 0) {
+          throw 'invalid database name';
+        }
+
+        currDatabase = db;
+
         return publicThat;
       }
     };

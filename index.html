@@ -5,10 +5,11 @@
     <script src="./src/sag.js"></script>
     <script>
     var couch = sag.server('localhost', '80')
+                    .setDatabase('db/bwah')
                     .decode(false);
 
     couch.get({
-      url: '/db',
+      url: '/',
       callback: function(resp) {
         document.getElementById('result').innerHTML = resp.body;
       }
