@@ -37,15 +37,19 @@
     function procPacket(method, path, data, headers, callback) {
       headers = headers || {};
 
-      headers['User-Agent'] = 'Sag-JS/0.1';
-
       if(!headers['Content-Type']) {
         headers['Content-Type'] = 'application/json';
       }
 
+      if(data && typeof data !== 'string') {
+        data = JSON.stringify(data);
+      }
+
       if(http) {
         // Node.JS http module
-        http.request(
+        headers['User-Agent'] = 'Sag-JS/0.1'; //can't set this in browsers
+
+        var req = http.request(
           {
             method: method,
             host: host,
@@ -66,9 +70,17 @@
               onResponse(res.statusCode, res.headers, resBody, callback);
             });
           }
-        ).on('error', function(e) {
+        );
+
+        req.on('error', function(e) {
           console.log('problem with request: ' + e);
-        }).end();
+        });
+
+        if(data) {
+          req.write(data);
+        }
+
+        req.end();
       }
       else if(xmlHTTP) {
         // Browser xhr magik
@@ -97,7 +109,7 @@
           }
         }
 
-        xmlHTTP.send();
+        xmlHTTP.send(data || null);
       }
       else {
         throw 'coder fail';
@@ -127,6 +139,38 @@
         }
 
         procPacket('GET', '/' + currDatabase + opts.url, null, null, opts.callback);
+      },
+
+      post: function(opts) {
+        var path;
+
+        if(!currDatabase) {
+          throw 'You must call setDatabase() first.';
+        }
+
+        if(typeof opts !== 'object') {
+          throw 'invalid opts object';
+        }
+
+        if(opts.data === null || opts.data === undefined) {
+          throw 'you must specify data to POST';
+        }
+
+        path = '/' + currDatabase;
+
+        if(opts.path) {
+          if(typeof opts.path !== 'string') {
+            throw 'Invalid path type (must be a string).';
+          }
+
+          if(opts.path.substr(0, 1) !== '/') {
+            path += '/';
+          }
+
+          path += opts.path;
+        }
+
+        procPacket('POST', path, opts.data, null, opts.callback);
       },
 
       decode: function(d) {

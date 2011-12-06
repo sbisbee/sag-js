@@ -6,12 +6,17 @@
     <script>
     var couch = sag.server('localhost', '80')
                     .setDatabase('db/bwah')
-                    .decode(false);
+                    .decode(true);
 
-    couch.get({
-      url: '/',
+    couch.post({
+      data: { hi: 'there' },
       callback: function(resp) {
-        document.getElementById('result').innerHTML = resp.body;
+        couch.decode(false).get({
+          url: resp.body.id,
+          callback: function(resp) {
+            document.getElementById('result').innerHTML = resp.body;
+          }
+        });
       }
     });
     </script>
