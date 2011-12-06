@@ -37,6 +37,8 @@
     function procPacket(method, path, data, headers, callback) {
       headers = headers || {};
 
+      headers['User-Agent'] = 'Sag-JS/0.1';
+
       if(!headers['Content-Type']) {
         headers['Content-Type'] = 'application/json';
       }
@@ -48,7 +50,7 @@
             method: method,
             host: host,
             port: port,
-            url: path,
+            path: path,
             headers: headers
           },
           function(res) {
