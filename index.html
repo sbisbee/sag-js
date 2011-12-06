@@ -1,11 +1,17 @@
 <html>
   <body>
+    <div id="result"></div>
+
     <script src="./src/sag.js"></script>
     <script>
-    var couch = sag.server('localhost', '80');
+    var couch = sag.server('localhost', '80')
+                    .decode(false);
 
-    couch.get('/db', function(r) {
-      console.log(r);
+    couch.get({
+      url: '/db',
+      callback: function(resp) {
+        document.getElementById('result').innerHTML = resp.body;
+      }
     });
     </script>
   </body>

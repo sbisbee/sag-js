@@ -3,6 +3,8 @@
     var http;
     var xmlHTTP;
 
+    var decodeJSON = true;
+
     if(typeof XMLHttpRequest === 'function') {
       xmlHTTP = new XMLHttpRequest();
     }
@@ -17,13 +19,18 @@
     }
 
     function onResponse(httpCode, headers, body, callback) {
-      callback({
+      var resp = {
         _HTTP: {
           status: httpCode
         },
-        headers: headers,
-        body: (typeof body === 'string' && body.length > 0) ? JSON.parse(body) : null
-      });
+        headers: headers
+      };
+
+      if(typeof body === 'string') {
+        resp.body = (body.length > 0 && decodeJSON) ? JSON.parse(body) : body;
+      }
+
+      callback(resp);
     }
 
     function procPacket(method, path, data, headers, callback) {
@@ -89,18 +96,32 @@
       }
     }
 
-    return {
-      get: function(url, callback) {
-        if(typeof url !== 'string') {
+    var publicThat = {
+      get: function(opts) {
+        if(typeof opts !== 'object') {
+          throw 'invalid opts object';
+        }
+
+        if(typeof opts.url !== 'string') {
           throw 'invalid url type';
         }
 
-        if(url.substr(0, 1) !== '/') {
-          url = '/' + url;
+        if(opts.callback && typeof opts.callback !== 'function') {
+          throw 'invalid callback type';
         }
 
-        procPacket('GET', url, null, null, callback);
+        if(opts.url.substr(0, 1) !== '/') {
+          opts.url = '/' + opts.url;
+        }
+
+        procPacket('GET', opts.url, null, null, opts.callback);
+      },
+      decode: function(d) {
+        decodeJSON = !! d;
+        return publicThat;
       }
     };
+
+    return publicThat;
   };
 })((typeof exports === 'object') ? exports : (this.sag = {}));
