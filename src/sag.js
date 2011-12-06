@@ -142,6 +142,12 @@
         currDatabase = db;
 
         return publicThat;
+      },
+
+      getAllDatabases: function(callback) {
+        procPacket('GET', '/_all_dbs', null, null, function(res) {
+          callback(res.body);
+        });
       }
     };
 
