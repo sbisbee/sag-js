@@ -194,6 +194,10 @@
 
       getAllDatabases: function(callback) {
         procPacket('GET', '/_all_dbs', null, null, callback);
+      },
+
+      getStats: function(callback) {
+        procPacket('GET', '/_stats', null, null, callback);
       }
     };
 
