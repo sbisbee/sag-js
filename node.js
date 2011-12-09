@@ -22,3 +22,7 @@ sag.head({
     console.log('head', resp);
   }
 });
+
+sag.getSession(function(resp) {
+  console.log('s', resp);
+});

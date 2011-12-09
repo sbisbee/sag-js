@@ -323,6 +323,14 @@
           null,
           opts.callback
         );
+      },
+
+      getSession: function(callback) {
+        if(callback && typeof callback !== 'function') {
+          throw 'Invalid callback type';
+        }
+
+        procPacket('GET', '/_session', null, null, callback);
       }
     };
 
