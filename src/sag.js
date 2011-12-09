@@ -331,6 +331,36 @@
         }
 
         procPacket('GET', '/_session', null, null, callback);
+      },
+
+      bulk: function(opts) {
+        var data = {};
+
+        if(!currDatabase) {
+          throw 'Must setDatabase() first.';
+        }
+
+        if(!opts.docs || !isArray(opts.docs)) {
+          throw 'Invalid docs provided.';
+        }
+
+        if(opts.callback && typeof opts.callback !== 'function') {
+          throw 'Invalid callback type';
+        }
+
+        if(opts.allOrNothing) {
+          data.all_or_nothing = !!opts.allOrNothing;
+        }
+
+        data.docs = opts.docs;
+
+        procPacket(
+          'POST',
+          '/' + currDatabase + '/_bulk_docs',
+          data,
+          null,
+          opts.callback
+        );
       }
     };
 
