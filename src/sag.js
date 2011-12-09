@@ -1,4 +1,8 @@
 (function(exports) {
+  var isArray = Array.isArray || function(arg) {
+    return Object.prototype.toString.call(arg) == '[object Array]';
+  }
+
   exports.server = function(host, port, user, pass) {
     var http;
     var xmlHTTP;
