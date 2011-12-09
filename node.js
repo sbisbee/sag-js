@@ -15,3 +15,10 @@ sag.get({
     });
   }
 });
+
+sag.head({
+  url: '/',
+  callback: function(resp) {
+    console.log('head', resp);
+  }
+});

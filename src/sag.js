@@ -64,13 +64,17 @@
             headers: headers
           },
           function(res) {
-            var resBody = '';
+            var resBody;
 
             res.setEncoding('utf8');
 
-            res.on('data', function(chunk) {
-              resBody += chunk;
-            });
+            if(method !== 'HEAD') {
+              resBody = '';
+
+              res.on('data', function(chunk) {
+                resBody += chunk;
+              });
+            }
 
             res.on('end', function() {
               onResponse(res.statusCode, res.headers, resBody, callback);
@@ -292,6 +296,32 @@
           null,
           { 'If-Match': rev },
           callback
+        );
+      },
+
+      head: function(opts) {
+        if(!currDatabase) {
+          throw 'Must setDatabase() first.';
+        }
+
+        if(typeof opts.url !== 'string' || !opts.url) {
+          throw 'Invalid URL provided';
+        }
+
+        if(opts.url.substr(0, 1) !== '/') {
+          opts.url = '/' + opts.url;
+        }
+
+        if(opts.callback && typeof opts.callback !== 'function') {
+          throw 'Invalid callback type';
+        }
+
+        procPacket(
+          'HEAD',
+          '/' + currDatabase + opts.url,
+          null,
+          null,
+          opts.callback
         );
       }
     };
