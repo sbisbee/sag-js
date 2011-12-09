@@ -35,7 +35,9 @@
         resp.body = (body.length > 0 && decodeJSON) ? JSON.parse(body) : body;
       }
 
-      callback(resp);
+      if(typeof callback === 'function') {
+        callback(resp);
+      }
     }
 
     function procPacket(method, path, data, headers, callback) {
