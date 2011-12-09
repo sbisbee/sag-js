@@ -13,3 +13,11 @@ sag.post({
     });
   }
 });
+
+sag.getAllDatabases(function(res) {
+  console.log('Databases:');
+
+  for(var i in res.body) {
+    console.log('\t' + res.body[i]);
+  }
+});
