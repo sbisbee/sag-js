@@ -3,26 +3,15 @@ var sag = require('./src/sag.js').server('localhost', '5984');
 sag.setDatabase('bwah');
 
 sag.get({
-  url: 'me',
+  url: 'bwah',
   callback: function(resp) {
-    sag.delete(resp.body._id, resp.body._rev, function(resp) {
-      console.log('delete', resp);
-
-      sag.put({
-        data: { _id: 'me', hi: 'there' },
-        id: 'me'
-      });
+    sag.copy({
+      srcID: 'me',
+      dstID: 'bwah',
+      dstRev: resp.body._rev,
+      callback: function(resp) {
+        console.log(resp);
+      }
     });
   }
-});
-
-sag.head({
-  url: '/',
-  callback: function(resp) {
-    console.log('head', resp);
-  }
-});
-
-sag.getSession(function(resp) {
-  console.log('s', resp);
 });

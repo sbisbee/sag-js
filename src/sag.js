@@ -397,6 +397,42 @@
         }
 
         procPacket('POST', url, null, null, opts.callback);
+      },
+
+      copy: function(opts) {
+        if(typeof opts !== 'object') {
+          throw 'Missing required opts.';
+        }
+
+        throwIfNoCurrDB();
+
+        if(!opts.srcID || typeof opts.srcID !== 'string') {
+          throw 'Invalid srcID.';
+        }
+
+        if(!opts.dstID || typeof opts.dstID !== 'string') {
+          throw 'Invalid dstID.';
+        }
+
+        if(opts.dstRev) {
+          if(typeof opts.dstRev !== 'string') {
+            throw 'Invalid dstRev.';
+          }
+
+          opts.dstID += '?rev=' + opts.dstRev;
+        }
+
+        if(opts.callback && typeof opts.callback !== 'function') {
+          throw 'Invalid callback type.';
+        }
+
+        procPacket(
+          'COPY',
+          '/' + currDatabase + '/' + opts.srcID,
+          null,
+          { Destination: opts.dstID },
+          opts.callback
+        );
       }
     };
 
