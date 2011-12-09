@@ -267,6 +267,32 @@
           null,
           opts.callback
         );
+      },
+
+      delete: function(id, rev, callback) {
+        if(!currDatabase) {
+          throw 'Must setDatabase() first.';
+        }
+
+        if(!id || typeof id !== 'string') {
+          throw 'Invalid id';
+        }
+
+        if(!rev || typeof rev !== 'string') {
+          throw 'Invalid rev';
+        }
+
+        if(callback && typeof callback !== 'function') {
+          throw 'Invalid callback type';
+        }
+
+        procPacket(
+          'DELETE',
+          '/' + currDatabase + '/' + id,
+          null,
+          { 'If-Match': rev },
+          callback
+        );
       }
     };
 
