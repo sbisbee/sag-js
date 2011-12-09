@@ -198,6 +198,19 @@
 
       getStats: function(callback) {
         procPacket('GET', '/_stats', null, null, callback);
+      },
+
+      generateIDs: function(opts) {
+        var url = '/_uuids';
+
+        if(typeof opts.count === 'number') {
+          url += '?count=' + opts.count;
+        }
+        else if(typeof opts.count !== 'undefined') {
+          throw 'Invalid count type';
+        }
+
+        procPacket('GET', url, null, null, opts.callback);
       }
     };
 

@@ -21,3 +21,10 @@ sag.getAllDatabases(function(res) {
     console.log('\t' + res.body[i]);
   }
 });
+
+sag.generateIDs({
+  count: 10,
+  callback: function(res) {
+    console.log(res.body);
+  }
+});
