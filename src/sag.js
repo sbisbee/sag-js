@@ -219,6 +219,10 @@
       generateIDs: function(opts) {
         var url = '/_uuids';
 
+        if(typeof opts !== 'object') {
+          throw 'Missing required opts.';
+        }
+
         if(typeof opts.count === 'number') {
           url += '?count=' + opts.count;
         }
@@ -230,6 +234,10 @@
       },
 
       put: function(opts) {
+        if(typeof opts !== 'object') {
+          throw 'Missing required opts.';
+        }
+
         throwIfNoCurrDB();
 
         if(opts.callback && typeof opts.callback !== 'function') {
@@ -298,6 +306,10 @@
       },
 
       head: function(opts) {
+        if(typeof opts !== 'object') {
+          throw 'Missing required opts.';
+        }
+
         throwIfNoCurrDB();
 
         if(typeof opts.url !== 'string' || !opts.url) {
@@ -332,6 +344,10 @@
       bulk: function(opts) {
         var data = {};
 
+        if(typeof opts !== 'object') {
+          throw 'Missing required opts.';
+        }
+
         throwIfNoCurrDB();
 
         if(!opts.docs || !isArray(opts.docs)) {
@@ -359,6 +375,10 @@
 
       compact: function(opts) {
         var url;
+
+        if(typeof opts !== 'object') {
+          throw 'Missing required opts.';
+        }
 
         throwIfNoCurrDB();
 
