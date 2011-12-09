@@ -10,6 +10,12 @@
     var decodeJSON = true;
     var currDatabase;
 
+    function throwIfNoCurrDB() {
+      if(!currDatabase) {
+        throw 'Must setDatabase() first.';
+      }
+    }
+
     if(typeof XMLHttpRequest === 'function') {
       xmlHTTP = new XMLHttpRequest();
     }
@@ -128,9 +134,7 @@
 
     var publicThat = {
       get: function(opts) {
-        if(!currDatabase) {
-          throw 'Must setDatabase() first.';
-        }
+        throwIfNoCurrDB();
 
         if(typeof opts !== 'object') {
           throw 'invalid opts object';
@@ -154,9 +158,7 @@
       post: function(opts) {
         var path;
 
-        if(!currDatabase) {
-          throw 'You must call setDatabase() first.';
-        }
+        throwIfNoCurrDB();
 
         if(typeof opts !== 'object') {
           throw 'invalid opts object';
@@ -228,9 +230,7 @@
       },
 
       put: function(opts) {
-        if(!currDatabase) {
-          throw 'Must setDatabase() first.';
-        }
+        throwIfNoCurrDB();
 
         if(opts.callback && typeof opts.callback !== 'function') {
           throw 'Invalid callback';
@@ -274,9 +274,7 @@
       },
 
       delete: function(id, rev, callback) {
-        if(!currDatabase) {
-          throw 'Must setDatabase() first.';
-        }
+        throwIfNoCurrDB();
 
         if(!id || typeof id !== 'string') {
           throw 'Invalid id';
@@ -300,9 +298,7 @@
       },
 
       head: function(opts) {
-        if(!currDatabase) {
-          throw 'Must setDatabase() first.';
-        }
+        throwIfNoCurrDB();
 
         if(typeof opts.url !== 'string' || !opts.url) {
           throw 'Invalid URL provided';
@@ -336,9 +332,7 @@
       bulk: function(opts) {
         var data = {};
 
-        if(!currDatabase) {
-          throw 'Must setDatabase() first.';
-        }
+        throwIfNoCurrDB();
 
         if(!opts.docs || !isArray(opts.docs)) {
           throw 'Invalid docs provided.';
@@ -366,9 +360,7 @@
       compact: function(opts) {
         var url;
 
-        if(!currDatabase) {
-          throw 'Must setDatabase() first.';
-        }
+        throwIfNoCurrDB();
 
         url = '/' + currDatabase + '/_compact';
 
