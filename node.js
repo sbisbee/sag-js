@@ -28,3 +28,13 @@ sag.generateIDs({
     console.log(res.body);
   }
 });
+
+sag.put({
+  id: 'me',
+  data: {
+    _id: 'me'
+  },
+  callback: function(res) {
+    console.log('put response', res);
+  }
+});

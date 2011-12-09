@@ -215,6 +215,48 @@
         }
 
         procPacket('GET', url, null, null, opts.callback);
+      },
+
+      put: function(opts) {
+        if(opts.callback && typeof opts.callback !== 'function') {
+          throw 'Invalid callback';
+        }
+
+        if(!opts.id) {
+          throw 'Must specify an id.';
+        }
+
+        if(typeof opts.id !== 'string') {
+          throw 'Invalid id type (must be a string).';
+        }
+
+        if(!opts.data) {
+          throw 'Invalid data: must specify data (a document) to PUT.';
+        }
+        else {
+          if(!opts.data._id) {
+            throw 'No _id specified in the data.';
+          }
+
+          if(typeof opts.data._id !== 'string') {
+            throw 'Invalid _id specific (must be a string).';
+          }
+
+          if(typeof opts.data === 'object' || isArray(opts.data)) {
+            opts.data = JSON.stringify(opts.data);
+          }
+          else if(typeof opts.data !== 'string') {
+            throw 'Invalid data: must be a string of JSON or an object or array to be encoded as JSON.';
+          }
+        }
+
+        procPacket(
+          'PUT',
+          '/' + currDatabase + '/' + opts.id,
+          opts.data,
+          null,
+          opts.callback
+        );
       }
     };
 
