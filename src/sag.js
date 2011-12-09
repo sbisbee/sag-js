@@ -123,7 +123,7 @@
     var publicThat = {
       get: function(opts) {
         if(!currDatabase) {
-          throw 'You must call setDatabase() first.';
+          throw 'Must setDatabase() first.';
         }
 
         if(typeof opts !== 'object') {
@@ -201,6 +201,10 @@
       },
 
       getStats: function(callback) {
+        if(!currDatabase) {
+          throw 'Must setDatabase() first.';
+        }
+
         procPacket('GET', '/_stats', null, null, callback);
       },
 
@@ -218,6 +222,10 @@
       },
 
       put: function(opts) {
+        if(!currDatabase) {
+          throw 'Must setDatabase() first.';
+        }
+
         if(opts.callback && typeof opts.callback !== 'function') {
           throw 'Invalid callback';
         }
