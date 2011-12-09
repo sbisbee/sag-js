@@ -26,14 +26,3 @@ sag.head({
 sag.getSession(function(resp) {
   console.log('s', resp);
 });
-
-sag.bulk({
-  docs: [
-    { hi: 'there' },
-    { hi: 'there' },
-    { hi: 'there' }
-  ],
-  callback: function(resp) {
-    console.log('bulk', resp);
-  }
-});

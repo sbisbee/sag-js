@@ -361,6 +361,30 @@
           null,
           opts.callback
         );
+      },
+
+      compact: function(opts) {
+        var url;
+
+        if(!currDatabase) {
+          throw 'Must setDatabase() first.';
+        }
+
+        url = '/' + currDatabase + '/_compact';
+
+        if(opts.viewName) {
+          if(typeof opts.viewName !== 'string') {
+            throw 'Invalid viewName provided.';
+          }
+
+          url += '/' + opts.viewName;
+        }
+
+        if(opts.callback && typeof opts.callback !== 'function') {
+          throw 'Invalid callback type.';
+        }
+
+        procPacket('POST', url, null, null, opts.callback);
       }
     };
 
