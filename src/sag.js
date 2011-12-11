@@ -7,8 +7,11 @@
     var http;
     var xmlHTTP;
 
+    var urlUtils;
+
     var decodeJSON = true;
     var currDatabase;
+    var staleDefault = false;
 
     function throwIfNoCurrDB() {
       if(!currDatabase) {
@@ -24,6 +27,7 @@
     }
     else if(typeof require === 'function') {
       http = require('http');
+      urlUtils = require('url');
     }
     else {
       throw 'whoops';
@@ -132,6 +136,28 @@
       }
     }
 
+    function setURLParameter(url, key, value) {
+      if(typeof url !== 'string') {
+        throw 'URLs must be a string';
+      }
+
+      if(urlUtils) {
+        //node.js
+        url = urlUtils.parse(url);
+
+        url.search = ((url.search) ? url.search + '&' : '?')
+                      + key + '=' + value;
+
+        url = urlUtils.format(url);
+      }
+      else {
+        //browser
+        throw 'impl';
+      }
+
+      return url;
+    }
+
     var publicThat = {
       get: function(opts) {
         throwIfNoCurrDB();
@@ -152,7 +178,17 @@
           opts.url = '/' + opts.url;
         }
 
-        procPacket('GET', '/' + currDatabase + opts.url, null, null, opts.callback);
+        if(staleDefault) {
+          opts.url = setURLParameter(opts.url, 'stale', 'ok');
+        }
+
+        procPacket(
+          'GET',
+          '/' + currDatabase + opts.url,
+          null,
+          null,
+          opts.callback
+        );
       },
 
       post: function(opts) {
@@ -433,6 +469,12 @@
           { Destination: opts.dstID },
           opts.callback
         );
+      },
+
+      setStaleDefault: function(isIt) {
+        staleDefault = !!isIt;
+
+        return publicThat;
       }
     };
 
