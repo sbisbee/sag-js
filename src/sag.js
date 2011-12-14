@@ -12,6 +12,7 @@
     var decodeJSON = true;
     var currDatabase;
     var staleDefault = false;
+    var globalCookies = {};
 
     function throwIfNoCurrDB() {
       if(!currDatabase) {
@@ -547,6 +548,33 @@
           { 'Content-Type': opts.contentType },
           opts.callback
         );
+      },
+
+      setCookie: function(key, value) {
+        if(!key || typeof key !== 'string') {
+          throw 'Invalid cookie key.';
+        }
+
+        if(value !== null && typeof value !== 'string') {
+          throw 'Invalid non-string and non-null cookie value.';
+        }
+
+        if(value === null) {
+          delete globalCookies[key];
+        }
+        else {
+          globalCookies[key] = value;
+        }
+
+        return publicThat;
+      },
+
+      getCookie: function(key) {
+        if(!key || typeof key !== 'string') {
+          throw 'Invalid cookie key.';
+        }
+
+        return globalCookies[key];
       }
     };
 
