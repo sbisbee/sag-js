@@ -588,6 +588,61 @@
         }
 
         return globalCookies[key];
+      },
+
+      replicate: function(opts) {
+        var data = {};
+
+        if(typeof opts !== 'object') {
+          throw 'Invalid parameter.';
+        }
+
+        if(!opts.source || typeof opts.source !== 'string') {
+          throw 'Invalid source.';
+        }
+
+        if(!opts.target || typeof opts.target !== 'string') {
+          throw 'Invalid target';
+        }
+
+        if(opts.filter && typeof opts.filter !== 'string') {
+          throw 'Invalid filter.';
+        }
+
+        if(opts.callback && typeof opts.callback !== 'function') {
+          throw 'Invalid callback type.';
+        }
+
+        if(opts.filterQueryParams) {
+          if(typeof opts.filterQueryParams !== 'object') {
+            throw 'Invalid filterQueryParams.';
+          }
+
+          if(!opts.filter) {
+            throw 'Provided filterQueryParams but no filter.';
+          }
+        }
+
+        data.source = opts.source;
+        data.target = opts.target;
+
+        if(opts.continuous) {
+          data.continuous = !!opts.continuous;
+        }
+
+        if(opts.createTarget) {
+          data.create_target = !!opts.createTarget;
+        }
+
+        if(opts.filter) {
+          data.filter = opts.filter;
+
+          if(opts.filterQueryParams) {
+            data.filterQueryParams = opts.filterQueryParams;
+          }
+        }
+
+        procPacket('POST', '/_replicate', data, null, opts.callback);
       }
     };
 
