@@ -475,6 +475,18 @@
         staleDefault = !!isIt;
 
         return publicThat;
+      },
+
+      createDatabase: function(name, callback) {
+        if(!name || typeof name !== 'string') {
+          throw 'Invalid database name.';
+        }
+
+        if(callback && typeof callback !== 'function') {
+          throw 'Invalid callback type.';
+        }
+
+        procPacket('PUT', '/' + name, null, null, callback);
       }
     };
 
