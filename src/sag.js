@@ -487,6 +487,18 @@
         }
 
         procPacket('PUT', '/' + name, null, null, callback);
+      },
+
+      deleteDatabase: function(name, callback) {
+        if(!name || typeof name !== 'string') {
+          throw 'Invalid database name.';
+        }
+
+        if(callback && typeof callback !== 'function') {
+          throw 'Invalid callback type.';
+        }
+
+        procPacket('DELETE', '/' + name, null, null, callback);
       }
     };
 

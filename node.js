@@ -4,4 +4,8 @@ sag.setStaleDefault(true).setDatabase('bwah');
 
 sag.createDatabase('test2', function(resp) {
   console.log(resp);
+
+  sag.deleteDatabase('test2', function(resp) {
+    console.log(resp);
+  });
 });
