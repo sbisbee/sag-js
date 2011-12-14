@@ -263,8 +263,10 @@
       },
 
       getStats: function(callback) {
-        if(!currDatabase) {
-          throw 'Must setDatabase() first.';
+        throwIfNoCurrDB();
+
+        if(typeof callback !== 'function') {
+          throw 'Invalid callback.';
         }
 
         procPacket('GET', '/_stats', null, null, callback);
