@@ -152,7 +152,11 @@
       }
       else {
         //browser
-        throw 'impl';
+        url = url.split('?');
+
+        url[1] = ((url[1]) ? url[1] + '&' : '') + key + '=' + value;
+
+        url = url.join('?');
       }
 
       return url;
