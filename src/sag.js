@@ -52,7 +52,7 @@
     }
 
     function procPacket(method, path, data, headers, callback) {
-      var cookieString = '';
+      var cookieStr = '';
 
       headers = headers || {};
 
@@ -67,17 +67,12 @@
       //deal with global cookies
       for(var key in globalCookies) {
         if(globalCookies.hasOwnProperty(key)) {
-          cookieString += key + '=' + globalCookies[key] + ';';
+          cookieStr += key + '=' + globalCookies[key] + ';';
         }
       }
 
-      if(cookieString) {
-        if(!headers['Cookie']) {
-          headers['Cookie'] = cookieString;
-        }
-        else {
-          headers['Cookie'] += cookieString;
-        }
+      if(cookieStr) {
+        headers.Cookie = ((headers.Cookie) ? headers.Cookie : '') + cookieStr;
       }
 
       if(http) {
