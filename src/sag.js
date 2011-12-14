@@ -643,6 +643,61 @@
         }
 
         procPacket('POST', '/_replicate', data, null, opts.callback);
+      },
+
+      getAllDocs: function(opts) {
+        var url;
+        var qry = [];
+
+        if(typeof opts !== 'object') {
+          throw 'Invalid parameter.';
+        }
+
+        if(opts.includeDocs) {
+          qry.push('include_docs=true');
+        }
+
+        if(opts.limit) {
+          if(typeof opts.limit !== 'number') {
+            throw 'Invalid limit.';
+          }
+
+          qry.push('limit=' + opts.limit);
+        }
+
+        if(opts.startKey) {
+          if(typeof opts.startKey !== 'string') {
+            throw 'Invalid startKey.';
+          }
+
+          qry.push('startkey=' + encodeURIComponent(opts.startKey));
+        }
+
+        if(opts.endKey) {
+          if(typeof opts.endKey !== 'string') {
+            throw 'Invalid endKey.';
+          }
+
+          qry.push('endkey=' + encodeURIComponent(opts.endKey));
+        }
+
+        if(opts.descending) {
+          qry.push('descending=true');
+        }
+
+        qry = '?' + qry.join('&');
+
+        url = '/' + currDatabase + '/_all_docs' + qry;
+
+        if(opts.keys) {
+          if(!isArray(opts.keys)) {
+            throw 'Invalid keys (not an array).';
+          }
+
+          procPacket('POST', url, { keys: opts.keys }, null, opts.callback);
+        }
+
+        procPacket('GET', url, null, null, opts.callback);
       }
     };
 
