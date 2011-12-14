@@ -499,6 +499,50 @@
         }
 
         procPacket('DELETE', '/' + name, null, null, callback);
+      },
+
+      setAttachment: function(opts) {
+        var url;
+
+        throwIfNoCurrDB();
+
+        if(!opts.name || typeof opts.name !== 'string') {
+          throw 'Invalid attachment name.';
+        }
+
+        if(!opts.data || typeof opts.data !== 'string') {
+          throw 'Invalid attachment data - remember to serialize it to a string!';
+        }
+
+        if(!opts.contentType || typeof opts.contentType !== 'string') {
+          throw 'Invalid contentType.';
+        }
+
+        if(!opts.docID || typeof opts.docID !== 'string') {
+          throw 'Invalid docID.';
+        }
+
+        if(opts.rev && typeof opts.rev !== 'string') {
+          throw 'Invalid attachment revID.';
+        }
+
+        if(opts.callback && typeof opts.callback !== 'function') {
+          throw 'Invalid callback type.';
+        }
+
+        url = '/' + currDatabase + '/' + opts.docID + '/' + opts.name;
+
+        if(opts.revID) {
+          url += '?rev=' + opts.revID;
+        }
+
+        procPacket(
+          'PUT',
+          url,
+          opts.data,
+          { 'Content-Type': opts.contentType },
+          opts.callback
+        );
       }
     };
 
