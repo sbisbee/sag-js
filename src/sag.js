@@ -52,6 +52,8 @@
     }
 
     function procPacket(method, path, data, headers, callback) {
+      var cookieString = '';
+
       headers = headers || {};
 
       if(!headers['Content-Type']) {
@@ -60,6 +62,22 @@
 
       if(data && typeof data !== 'string') {
         data = JSON.stringify(data);
+      }
+
+      //deal with global cookies
+      for(var key in globalCookies) {
+        if(globalCookies.hasOwnProperty(key)) {
+          cookieString += key + '=' + globalCookies[key] + ';';
+        }
+      }
+
+      if(cookieString) {
+        if(!headers['Cookie']) {
+          headers['Cookie'] = cookieString;
+        }
+        else {
+          headers['Cookie'] += cookieString;
+        }
       }
 
       if(http) {
