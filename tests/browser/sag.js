@@ -76,6 +76,35 @@ asyncTest('setDatabase() and create if does not exist', function() {
   });
 });
 
+asyncTest('decode()', function() {
+  var couch;
+  expect(5);
+
+  couch = makeCouch(true);
+
+  equal(couch.decode(false), couch, 'returns the sag obj');
+
+  couch.get({
+    url: '/',
+    callback: function(resp) {
+      equal(resp._HTTP.status, 200, 'got a response');
+      equal(typeof resp.body, 'string', 'no decode');
+
+      couch.decode(true);
+
+      couch.get({
+        url: '/',
+        callback: function(resp) {
+          equal(resp._HTTP.status, 200, 'got a response');
+          equal(typeof resp.body, 'object', 'no decode');
+
+          start();
+        }
+      });
+    }
+  });
+});
+
 asyncTest('get()', function() {
   var couch;
   expect(2);
