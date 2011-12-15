@@ -507,6 +507,8 @@
         }
 
         procPacket('PUT', '/' + name, null, null, callback);
+
+        return publicThat;
       },
 
       deleteDatabase: function(name, callback) {

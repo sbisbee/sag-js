@@ -32,16 +32,20 @@ test('setDatabase()', function() {
 
 asyncTest('createDatabase()', function() {
   var couch;
-  expect(2);
+  expect(3);
 
   couch = makeCouch(false);
 
-  couch.createDatabase(dbName, function(resp) {
-    equal(resp.body.ok, true, 'JSON body/parsing check');
-    equal(resp._HTTP.status, '201', 'Proper HTTP code');
+  equal(
+    couch.createDatabase(dbName, function(resp) {
+      equal(resp.body.ok, true, 'JSON body/parsing check');
+      equal(resp._HTTP.status, '201', 'Proper HTTP code');
 
-    start();
-  });
+      start();
+    }),
+    couch,
+    'returns sag object'
+  );
 });
 
 asyncTest('deleteDatabase()', function() {
