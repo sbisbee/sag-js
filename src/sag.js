@@ -521,6 +521,8 @@
         }
 
         procPacket('DELETE', '/' + name, null, null, callback);
+
+        return publicThat;
       },
 
       setAttachment: function(opts) {

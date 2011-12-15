@@ -50,14 +50,18 @@ asyncTest('createDatabase()', function() {
 
 asyncTest('deleteDatabase()', function() {
   var couch;
-  expect(2);
+  expect(3);
 
   couch = makeCouch(false);
 
-  couch.deleteDatabase(dbName, function(resp) {
-    equal(resp.body.ok, true, 'JSON body/parsing check');
-    equal(resp._HTTP.status, '200', 'Proper HTTP code');
+  equal(
+    couch.deleteDatabase(dbName, function(resp) {
+      equal(resp.body.ok, true, 'JSON body/parsing check');
+      equal(resp._HTTP.status, '200', 'Proper HTTP code');
 
-    start();
-  });
+      start();
+    }),
+    couch,
+    'returns sag object'
+  );
 });
