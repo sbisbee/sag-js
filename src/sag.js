@@ -263,7 +263,7 @@
               //create the db
               publicThat.createDatabase(db, function(resp) {
                 //can't rely on resp.body.ok because decode might be false
-                createCallback(resp._HTTP.status === 201);
+                createCallback((resp._HTTP.status === 201));
               });
             }
             else if(resp._HTTP.status < 400) {
