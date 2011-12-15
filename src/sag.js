@@ -1,7 +1,7 @@
 (function(exports) {
   var isArray = Array.isArray || function(arg) {
     return Object.prototype.toString.call(arg) == '[object Array]';
-  }
+  };
 
   exports.server = function(host, port, user, pass) {
     var http;
@@ -13,6 +13,7 @@
     var currDatabase;
     var staleDefault = false;
     var globalCookies = {};
+    var pathPrefix = '';
 
     function throwIfNoCurrDB() {
       if(!currDatabase) {
@@ -73,6 +74,10 @@
 
       if(cookieStr) {
         headers.Cookie = ((headers.Cookie) ? headers.Cookie : '') + cookieStr;
+      }
+
+      if(pathPrefix) {
+        path = pathPrefix + path;
       }
 
       if(http) {
@@ -732,6 +737,21 @@
         }
 
         procPacket('GET', url, null, null, opts.callback);
+      },
+
+      setPathPrefix: function(pre) {
+        if(pre !== undefined && pre !== null && typeof pre !== 'string') {
+          throw 'Invalid path prefix.';
+        }
+
+        //no trailing slash
+        if(pre.substr(pre.length - 1, 1) == '/') {
+          pre = pre.substr(0, pre.length - 1);
+        }
+
+        pathPrefix = pre || '';
+
+        return publicThat;
       }
     };
 

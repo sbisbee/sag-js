@@ -1,10 +1,12 @@
-var dbName = 'db/sag-js-tests';
+var dbName = 'sag-js-tests';
 
 //force test order - see https://github.com/jquery/qunit/issues/74
 QUnit.config.reorder = false;
 
 function makeCouch(setDB) {
   var couch = sag.server('localhost', '80');
+
+  couch.setPathPrefix('/db');
 
   if(setDB) {
     couch.setDatabase(dbName);
