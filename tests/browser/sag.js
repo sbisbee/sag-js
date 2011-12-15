@@ -23,11 +23,12 @@ test('Init', function() {
 
 test('setDatabase()', function() {
   var couch;
-  expect(1);
+  expect(2);
 
   couch = makeCouch(false);
 
   equal(couch.setDatabase(dbName), couch, 'returns sag object');
+  equal(couch.currentDatabase(), dbName, 'did it get set?');
 });
 
 asyncTest('createDatabase()', function() {
