@@ -26,11 +26,13 @@ test('Init', function() {
   equal(typeof couch, 'object', 'server() should return an object');
 });
 
-test('setDatabase()', function() {
+test('setDatabase() and currentDatabase()', function() {
   var couch;
-  expect(2);
+  expect(3);
 
   couch = makeCouch(false);
+
+  equal(couch.currentDatabase(), undefined, 'no db yet');
 
   equal(couch.setDatabase(dbName), couch, 'returns sag object');
   equal(couch.currentDatabase(), dbName, 'did it get set?');
@@ -198,6 +200,20 @@ asyncTest('post()', function() {
       });
     }
   }); 
+});
+
+asyncTest('getAllDatabases()', function() {
+  var couch;
+  expect(2);
+
+  couch = makeCouch(true);
+
+  couch.getAllDatabases(function(resp) {
+    equal(resp._HTTP.status, 200, 'got a 200');
+    ok(isArray(resp.body));
+
+    start();
+  });
 });
 
 asyncTest('deleteDatabase()', function() {
