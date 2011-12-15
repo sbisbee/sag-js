@@ -244,9 +244,37 @@
         return publicThat;
       },
 
-      setDatabase: function(db) {
+      setDatabase: function(db, createIfNotFound, createCallback) {
         if(typeof db !== 'string' || db.length <= 0) {
           throw 'invalid database name';
+        }
+
+        if(createCallback) {
+          if(!createIfNotFound) {
+            throw 'Provided a callback but told not to check if the database exists.';
+          }
+
+          if(typeof createCallback !== 'function') {
+            throw 'Invalid callback type.';
+          }
+
+          procPacket('GET', '/' + db, null, null, function(resp) {
+            if(resp._HTTP.status === 404) {
+              //create the db
+              publicThat.createDatabase(db, function(resp) {
+                //can't rely on resp.body.ok because decode might be false
+                createCallback(resp._HTTP.status === 201);
+              });
+            }
+            else if(resp._HTTP.status < 400) {
+              //db was created
+              createCallback(true);
+            }
+            else {
+              //unexpected response
+              createCallback(false);
+            }
+          });
         }
 
         currDatabase = db;
