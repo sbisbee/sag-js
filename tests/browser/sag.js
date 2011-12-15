@@ -138,6 +138,37 @@ asyncTest('put()', function() {
   });
 });
 
+asyncTest('post()', function() {
+  var couch;
+  var docData = {
+    foo: 'bar'
+  }
+
+  expect(2);
+
+  couch = makeCouch(true);
+
+  couch.post({
+    data: docData,
+    callback: function(resp) {
+      equal(resp._HTTP.status, 201, 'got a 201');
+
+      //for the next call and deepEqual
+      docData._id = resp.body.id;
+      docData._rev = resp.body.rev;
+
+      couch.get({
+        url: resp.body.id,
+        callback: function(resp) {
+          deepEqual(resp.body, docData, 'data got saved');
+
+          start();
+        }
+      });
+    }
+  }); 
+});
+
 asyncTest('deleteDatabase()', function() {
   var couch;
   expect(3);
