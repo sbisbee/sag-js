@@ -34,7 +34,7 @@ fs.readFile('../browser/qunit/qunit/qunit.js', 'utf-8', function(err, data) {
 
   context.QUnit.done = function(res) {
     console.log(
-      'passed:\t\t%d\nfailed:\t\t%d\ntotal run:\t%d\nseconds:\t%d\n',
+      'Passed:\t\t%d\nFailed:\t\t%d\nTotal Run:\t%d\nSeconds:\t%d\n',
       res.passed,
       res.failed,
       res.total,
