@@ -129,10 +129,12 @@
             var rawHeaders = this.getAllResponseHeaders().split('\n');
 
             for(var i in rawHeaders) {
-              rawHeaders[i] = rawHeaders[i].split(': ');
+              if(rawHeaders.hasOwnProperty(i)) {
+                rawHeaders[i] = rawHeaders[i].split(': ');
 
-              if(rawHeaders[i][1]) {
-                headers[rawHeaders[i][0]] = rawHeaders[i][1];
+                if(rawHeaders[i][1]) {
+                  headers[rawHeaders[i][0]] = rawHeaders[i][1];
+                }
               }
             }
 
@@ -164,8 +166,7 @@
         //node.js
         url = urlUtils.parse(url);
 
-        url.search = ((url.search) ? url.search + '&' : '?')
-                      + key + '=' + value;
+        url.search = ((url.search) ? url.search + '&' : '?') + key + '=' + value;
 
         url = urlUtils.format(url);
       }
