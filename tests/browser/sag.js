@@ -1,7 +1,8 @@
 var dbName = 'sag-js-tests';
 
-//force test order - see https://github.com/jquery/qunit/issues/74
-QUnit.config.reorder = false;
+var isArray = Array.isArray || function(arg) {
+  return Object.prototype.toString.call(arg) == '[object Array]';
+};
 
 function makeCouch(setDB) {
   var couch = sag.server('localhost', '80');
