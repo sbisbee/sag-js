@@ -1,0 +1,66 @@
+var vm = require('vm');
+var fs = require('fs');
+
+// this is the context in which all of our test code will run
+var initSandbox = {
+  console: console,
+  require: require,
+  setTimeout: setTimeout,
+  clearTimeout: clearTimeout
+};
+
+var context = vm.createContext(initSandbox);
+
+fs.readFile('../browser/qunit/qunit/qunit.js', 'utf-8', function(err, data) {
+  if(err) {
+    throw err;
+  }
+
+  vm.runInContext(data, context);
+
+  context.QUnit.testStart = function(res) {
+    console.log('Starting Test: %s', res.name);
+  };
+
+  context.QUnit.testDone = function(res) {
+    console.log('Finished Test: %s', res.name);
+  };
+
+  context.QUnit.log = function(res) {
+    if(!res.result) {
+      console.log(res);
+    }
+  };
+
+  context.QUnit.done = function(res) {
+    console.log(
+      'passed:\t\t%d\nfailed:\t\t%d\ntotal run:\t%d\nseconds:\t%d\n',
+      res.passed,
+      res.failed,
+      res.total,
+      res.runtime
+    );
+  };
+
+  //force test order - see https://github.com/jquery/qunit/issues/74
+  context.QUnit.config.reorder = false;
+
+  //forces qunit's internal queue to run the tests in order instead of asyncly
+  context.QUnit.config.autorun = false;
+
+  fs.readFile('../../src/sag.js', 'utf-8', function(err, data) {
+    if(err) {
+      throw err;
+    }
+
+    vm.runInContext(data, context);
+
+    fs.readFile('../sag-tests.js', 'utf-8', function(err, data) {
+      if(err) {
+        throw err;
+      }
+
+      vm.runInContext(data, context);
+    });
+  });
+});
