@@ -205,13 +205,24 @@ asyncTest('post()', function() {
 
 asyncTest('getAllDatabases()', function() {
   var couch;
-  expect(2);
+  expect(3);
 
   couch = makeCouch(true);
 
   couch.getAllDatabases(function(resp) {
+    var hasOurDb = false;
+
     equal(resp._HTTP.status, 200, 'got a 200');
     ok(isArray(resp.body));
+
+    for(var i in resp.body) {
+      if(resp.body[i] === dbName) {
+        hasOurDb = true;
+        break;
+      }
+    }
+
+    ok(hasOurDb, 'Our DB should be in the list.');
 
     start();
   });
