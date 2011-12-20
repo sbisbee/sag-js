@@ -19,11 +19,13 @@ fs.readFile('../browser/qunit/qunit/qunit.js', 'utf-8', function(err, data) {
   vm.runInContext(data, context);
 
   context.QUnit.testStart = function(res) {
-    console.log('Starting Test: %s', res.name);
+    console.log('Test: %s', res.name);
   };
 
   context.QUnit.testDone = function(res) {
-    console.log('Finished Test: %s', res.name);
+    if(res.failed) {
+      console.log('-----');
+    }
   };
 
   context.QUnit.log = function(res) {
@@ -34,7 +36,7 @@ fs.readFile('../browser/qunit/qunit/qunit.js', 'utf-8', function(err, data) {
 
   context.QUnit.done = function(res) {
     console.log(
-      'Passed:\t\t%d\nFailed:\t\t%d\nTotal Run:\t%d\nSeconds:\t%d\n',
+      '\nPassed:\t\t%d\nFailed:\t\t%d\nTotal Run:\t%d\nSeconds:\t%d\n',
       res.passed,
       res.failed,
       res.total,
