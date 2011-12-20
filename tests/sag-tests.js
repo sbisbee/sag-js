@@ -48,6 +48,18 @@ test('setDatabase() and currentDatabase()', function() {
   equal(couch.currentDatabase(), dbName, 'did it get set?');
 });
 
+test('cookies', function() {
+  var couch = makeCouch(false);
+
+  expect(3);
+
+  equal(couch.setCookie('foo', 'bar'), couch, 'got the api back');
+
+  equal(couch.getCookie('foo'), 'bar', 'set internally correctly');
+
+  equal(couch.getCookie('a'), undefined, 'not set');
+});
+
 asyncTest('createDatabase()', function() {
   var couch;
   expect(3);
