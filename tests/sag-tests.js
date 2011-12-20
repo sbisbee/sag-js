@@ -228,6 +228,26 @@ asyncTest('getAllDatabases()', function() {
   });
 });
 
+asyncTest('head()', function() {
+  var couch = makeCouch(true);
+
+  expect(3);
+
+  equal(
+    couch.head({
+      url: '/',
+      callback: function(resp) {
+        equal(resp._HTTP.status, 200, 'got a 200');
+        strictEqual(resp.body, undefined, 'no body in resp object');
+
+        start();
+      }
+    }),
+    couch,
+    'Got the couch object back.'
+  );
+});
+
 asyncTest('deleteDatabase()', function() {
   var couch;
   expect(3);

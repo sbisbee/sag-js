@@ -138,7 +138,12 @@
               }
             }
 
-            onResponse(this.status, headers, this.response, callback);
+            onResponse(
+              this.status,
+              headers,
+              (method !== 'HEAD') ? this.response : null,
+              callback
+            );
           }
         };
 
@@ -421,6 +426,8 @@
           null,
           opts.callback
         );
+
+        return publicThat;
       },
 
       getSession: function(callback) {
