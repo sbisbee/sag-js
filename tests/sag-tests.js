@@ -248,6 +248,37 @@ asyncTest('head()', function() {
   );
 });
 
+asyncTest('post(), delete(), then head()', function() {
+  var couch = makeCouch(true);
+
+  expect(3);
+
+  couch.post({
+    data: {},
+    callback: function(resp) {
+      var id = resp.body.id;
+      var rev = resp.body.rev;
+
+      equal(
+        couch.delete(id, rev, function(resp) {
+          equal(resp._HTTP.status, 200, 'got a 200');
+
+          couch.head({
+            url: id,
+            callback: function(resp) {
+              equal(resp._HTTP.status, 404, 'got a 404 after delete()');
+
+              start();
+            }
+          });
+        }),
+        couch,
+        'Got the couch object back'
+      );
+    }
+  });
+});
+
 asyncTest('deleteDatabase()', function() {
   var couch;
   expect(3);

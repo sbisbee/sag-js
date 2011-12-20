@@ -398,6 +398,8 @@
           { 'If-Match': rev },
           callback
         );
+
+        return publicThat;
       },
 
       head: function(opts) {
