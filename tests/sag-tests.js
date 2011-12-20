@@ -433,6 +433,23 @@ asyncTest('replicate()', function() {
   });
 });
 
+asyncTest('getAllDocs()', function() {
+  var couch = makeCouch(true);
+
+  expect(1);
+
+  couch.getAllDocs({
+    limit: 10,
+    includeDocs: true,
+    descending: true,
+    callback: function(resp) {
+      equal(resp._HTTP.status, 200, 'got our 200');
+
+      start();
+    }
+  });
+});
+
 asyncTest('deleteDatabase()', function() {
   var couch;
   expect(3);
