@@ -279,6 +279,37 @@ asyncTest('post(), delete(), then head()', function() {
   });
 });
 
+asyncTest('bulk()', function() {
+  var docs = [
+    {
+      foo: 'bar',
+      _id: 'one'
+    },
+    {
+      hi: 'there',
+      _id: 'two'
+    }
+  ];
+
+  var couch = makeCouch(true);
+
+  expect(2 + docs.length);
+
+  couch.bulk({
+    docs: docs,
+    callback: function(resp) {
+      equal(resp._HTTP.status, 201, 'got a 201 back');
+      equal(resp.body.length, docs.length, 'proper array size');
+
+      for(var i in resp.body) {
+        equal(resp.body[i].id, docs[i]._id, 'matching _id');
+      }
+
+      start();
+    }
+  });
+});
+
 asyncTest('deleteDatabase()', function() {
   var couch;
   expect(3);
