@@ -18,6 +18,14 @@ function makeCouch(setDB) {
 
 module('Core');
 
+test('setPathPrefix()', function() {
+  var couch = makeCouch(false);
+
+  expect(1);
+
+  equal(couch, couch.setPathPrefix(''), 'got the api back');
+});
+
 test('Init', function() {
   var couch;
   expect(1);
