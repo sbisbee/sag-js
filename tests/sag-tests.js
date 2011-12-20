@@ -1,4 +1,5 @@
 var dbName = 'sag-js-tests';
+var dbNameRepl = 'sag-js-tests-repl';
 
 var isArray = Array.isArray || function(arg) {
   return Object.prototype.toString.call(arg) == '[object Array]';
@@ -407,6 +408,27 @@ asyncTest('setAttachment()', function() {
           });
         }
       });
+    }
+  });
+});
+
+asyncTest('replicate()', function() {
+  var couch = makeCouch(false);
+
+  expect(2);
+
+  couch.replicate({
+    source: dbName,
+    target: dbNameRepl,
+    createTarget: true,
+    continuous: false,
+    callback: function(resp) {
+      equal(resp._HTTP.status, 200, 'got a 200 back');
+      ok(resp.body.ok, 'ok');
+
+      couch.deleteDatabase(dbNameRepl);
+
+      start();
     }
   });
 });
