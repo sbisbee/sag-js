@@ -139,7 +139,7 @@
                 rawHeaders[i] = rawHeaders[i].split(': ');
 
                 if(rawHeaders[i][1]) {
-                  headers[rawHeaders[i][0]] = rawHeaders[i][1].trim();
+                  headers[rawHeaders[i][0].toLowerCase()] = rawHeaders[i][1].trim();
                 }
               }
             }

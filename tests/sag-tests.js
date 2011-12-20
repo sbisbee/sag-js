@@ -397,7 +397,7 @@ asyncTest('setAttachment()', function() {
               equal(resp._HTTP.status, 200, 'got a 200 back');
               equal(resp.body, attachment.data, 'proper data');
               equal(
-                resp.headers['Content-Type'],
+                resp.headers['content-type'],
                 attachment.cType,
                 'proper Content-Type header'
               );
