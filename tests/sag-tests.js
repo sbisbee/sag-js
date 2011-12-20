@@ -354,6 +354,55 @@ asyncTest('copy() to overwrite', function() {
   });
 });
 
+asyncTest('setAttachment()', function() {
+  var couch = makeCouch(true);
+  var attachment = {
+    name: 'lyrics',
+    data: 'If I could turn back time...',
+    cType: 'text/ascii'
+  };
+
+  couch.get({
+    url: 'one',
+    callback: function(resp) {
+      var doc = {
+        id: resp.body._id,
+        rev: resp.body._rev
+      }
+
+      equal(resp._HTTP.status, 200, 'got a 200 back');
+
+      couch.setAttachment({
+        docID: doc.id,
+        docRev: doc.rev,
+
+        name: attachment.name,
+        data: attachment.data,
+        contentType: attachment.cType,
+
+        callback: function(resp) {
+          equal(resp._HTTP.status, 201, 'got a 201 back');
+
+          couch.get({
+            url: '/' + doc.id + '/' + attachment.name,
+            callback: function(resp) {
+              equal(resp._HTTP.status, 200, 'got a 200 back');
+              equal(resp.body, attachment.data, 'proper data');
+              equal(
+                resp.headers['Content-Type'],
+                attachment.cType,
+                'proper Content-Type header'
+              );
+
+              start();
+            }
+          });
+        }
+      });
+    }
+  });
+});
+
 asyncTest('deleteDatabase()', function() {
   var couch;
   expect(3);

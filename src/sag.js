@@ -44,7 +44,13 @@
       };
 
       if(typeof body === 'string') {
-        resp.body = (body.length > 0 && decodeJSON) ? JSON.parse(body) : body;
+        try {
+          resp.body = (body.length > 0 && decodeJSON) ? JSON.parse(body) : body;
+        }
+        catch(e) {
+          //failed to decode - likely not JSON
+          resp.body = body;
+        }
       }
 
       if(typeof callback === 'function') {
@@ -133,7 +139,7 @@
                 rawHeaders[i] = rawHeaders[i].split(': ');
 
                 if(rawHeaders[i][1]) {
-                  headers[rawHeaders[i][0]] = rawHeaders[i][1];
+                  headers[rawHeaders[i][0]] = rawHeaders[i][1].trim();
                 }
               }
             }
@@ -589,8 +595,8 @@
           throw 'Invalid docID.';
         }
 
-        if(opts.rev && typeof opts.rev !== 'string') {
-          throw 'Invalid attachment revID.';
+        if(opts.docRev && typeof opts.docRev !== 'string') {
+          throw 'Invalid attachment docRev.';
         }
 
         if(opts.callback && typeof opts.callback !== 'function') {
@@ -599,8 +605,8 @@
 
         url = '/' + currDatabase + '/' + opts.docID + '/' + opts.name;
 
-        if(opts.revID) {
-          url += '?rev=' + opts.revID;
+        if(opts.docRev) {
+          url += '?rev=' + opts.docRev;
         }
 
         procPacket(
