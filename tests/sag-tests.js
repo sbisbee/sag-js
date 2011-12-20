@@ -310,6 +310,50 @@ asyncTest('bulk()', function() {
   });
 });
 
+asyncTest('copy() to new doc', function() {
+  var couch = makeCouch(true);
+
+  expect(2);
+
+  couch.copy({
+    srcID: 'one',
+    dstID: 'oneCopy',
+    callback: function(resp) {
+      equal(resp._HTTP.status, 201, 'got a 201 back');
+      equal(resp.body.id, 'oneCopy', 'got the id back');
+
+      start();
+    }
+  });
+});
+
+asyncTest('copy() to overwrite', function() {
+  var couch = makeCouch(true);
+
+  expect(4);
+
+  //overwrite 'two' with 'one'
+  couch.get({
+    url: 'two',
+    callback: function(resp) {
+      equal(resp._HTTP.status, 200, 'got a 200 back');
+      ok(resp.body._id, 'has an _id');
+      ok(resp.body._rev, 'has a _rev');
+
+      couch.copy({
+        srcID: 'one',
+        dstID: resp.body._id,
+        dstRev: resp.body._rev,
+        callback: function(resp) {
+          equal(resp._HTTP.status, 201, 'got a 201 back');
+
+          start();
+        }
+      });
+    }
+  });
+});
+
 asyncTest('deleteDatabase()', function() {
   var couch;
   expect(3);
