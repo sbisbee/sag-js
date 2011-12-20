@@ -184,7 +184,7 @@ asyncTest('post()', function() {
   var couch;
   var docData = {
     foo: 'bar'
-  }
+  };
 
   expect(2);
 
