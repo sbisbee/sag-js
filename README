@@ -2,10 +2,89 @@ Sag-JS
 ======
 
 Version 0.1-UNRELEASED
-http://github.com/sbisbee/sag-js
+http://www.saggingcouch.com
 
-This is the testing ground for porting Sag (PHP) to Sag-JS with the goal of
-supporting both browsers and Node.js from the same file.
+Sag-JS is a JavaScript library for working with CouchDB that works in both
+browsers and Node.JS. It is a port of the popular Sag PHP library and is
+completely API compliant, with the addition of callbacks for dealing with
+JavaScript's asynchronous nature.
+
+Sag is designed to not force any particular programming method on its users -
+you just pass objects in and get objects back. This makes it trivial to
+include Sag in your application, build different functionality on top of it,
+and expand Sag to include new CouchDB functionality.
+
+Compatability
+-------------
+
+Sag-JS is API compatible with Sag 0.7.1.
+
+Each release is tested with an automated testing suite against these
+combinations of software:
+
+  Apache CouchDB: 1.0.x and 1.1.x
+
+  Node.JS: 0.4.x and 0.6.x (stable releases only)
+
+  Browsers: FF >= 3.5, Chrome >= 15, and IE >= 7
+
+Lower versions will likely work with Sag-JS but are not officially supported,
+so your mileage may vary.
+
+Contents
+--------
+
+CHANGELOG                       A detailed list of all changes between
+                                releases, including any breaking changes.
+
+LICENSE                         A copy of the license Sag-JS is released under.
+
+NOTICE                          Copyright notices.
+
+README                          This file.
+
+Makefile                        Used to run unit tests, create releases, etc.
+
+src/sag.js                      This is the file you will use in your
+                                application, for both Node.JS and browser.
+
+tests/                          Contains the automated testing suite for
+                                Sag-JS and its own documentation.
+
+Error Handling
+--------------
+
+Sag's paradigm of simplicity is carried into its error handling by allowing
+you to send data to CouchDB that will result in errors (ex., malformed JSON).
+This is because CouchDB knows when there is an error better than Sag. This
+also makes Sag more future proof, instead of worrying about each of CouchDB's
+API changes. Therefore, Sag will only look for Sag-JS interface problems and
+issues that are native to JS, such as passing an int instead of a string.
+
+All local errors are floated back to your application with exceptions. Sag
+does not catch any errors itself, allowing your application to care about them
+or not.
+
+CouchDB errors will be exposed through the response object. Additionally the
+second parameter of the callback functions is set to `true` if a non-2xx HTTP
+status was returned.
+
+Networking
+----------
+
+Sag-JS automatically detects whether it is in a Node.JS or browser environment
+and selects which networking tools to use accordingly.
+
+Node.JS uses the HTTP module found in every Node.JS release.
+
+Browser current uses XHR, which makes cross domain requests unfeasible. Future
+versions will include support for cross domain requests.
+
+More Info
+---------
+
+Detailed documentation of the functions and API are available at
+http://www.saggingcouch.com
 
 License
 -------
