@@ -462,6 +462,75 @@ asyncTest('getAllDocs()', function() {
   });
 });
 
+asyncTest('setStaleDefault() with view', function() {
+  var couch = makeCouch(true);
+
+  var url = '/_design/app/_view/count';
+  var value;
+
+  var ddoc = {
+    _id: '_design/app',
+    views: {
+      count: {
+        map: 'function(doc) { emit(null, 1); }',
+        reduce: '_sum'
+      }
+    }
+  };
+
+  expect(7);
+
+  //create the ddoc
+  couch.put({
+    id: ddoc._id,
+    data: ddoc,
+    callback: function(resp) {
+      equal(resp._HTTP.status, 201, 'got a 201');
+
+      //pump results into the ddoc
+      couch.get({
+        url: url,
+        callback: function(resp) {
+          equal(resp._HTTP.status, 200, 'got a 200');
+
+          //store the value before we write again
+          value = resp.body.rows[0].value;
+
+          //set the default
+          couch.setStaleDefault(true);
+
+          //write another doc, making the view results stale
+          couch.post({
+            data: {},
+            callback: function(resp) {
+              equal(resp._HTTP.status, 201, 'got a 201');
+
+              //grab the stale results
+              couch.get({
+                url: url,
+                callback: function(resp) {
+                  equal(resp._HTTP.status, 200, 'got a 200');
+                  equal(resp.body.rows[0].value, value, 'got stale value');
+
+                  couch.setStaleDefault(false).get({
+                    url: url,
+                    callback: function(resp) {
+                      equal(resp._HTTP.status, 200, 'got a 200');
+                      notEqual(resp.body.rows[0].value, value, 'got a new one');
+
+                      start();
+                    }
+                  });
+                }
+              });
+            }
+          });
+        }
+      });
+    }
+  });
+});
+
 asyncTest('deleteDatabase()', function() {
   var couch;
   expect(3);
