@@ -3,6 +3,11 @@
     return Object.prototype.toString.call(arg) == '[object Array]';
   };
 
+  //auth types
+  exports.AUTH_BASIC = 'AUTH_BASIC';
+  exports.AUTH_COOKIE = 'AUTH_COOKIE';
+
+  //the meat
   exports.server = function(host, port, user, pass) {
     var http;
     var xmlHTTP;
@@ -55,6 +60,8 @@
         },
         headers: headers
       };
+      var i;
+      var pieces;
 
       if(typeof body === 'string') {
         try {
@@ -63,6 +70,19 @@
         catch(e) {
           //failed to decode - likely not JSON
           resp.body = body;
+        }
+      }
+
+      //will likely only happen in node due to httpOnly cookies
+      if(headers['set-cookie']) {
+        resp.cookies = {};
+
+        for(var i in headers['set-cookie']) {
+          if(headers['set-cookie'].hasOwnProperty(i)) {
+            pieces = headers['set-cookie'][i].split(';')[0].split('=');
+            resp.cookies[pieces[0]] = pieces[1];
+            pieces = null;
+          }
         }
       }
 
@@ -92,6 +112,10 @@
       }
 
       if(cookieStr) {
+        if(xmlHTTP && console && typeof console.log === 'function') {
+          console.log('Sending Cookie header, but do not expect any cookies in the result - CouchDB uses httpOnly cookies.');
+        }
+
         headers.Cookie = ((headers.Cookie) ? headers.Cookie : '') + cookieStr;
       }
 
@@ -99,8 +123,15 @@
         path = pathPrefix + path;
       }
 
-      if(currAuth.type === publicThat.AUTH_BASIC && (currAuth.user || currAuth.pass)) {
+      if(currAuth.type === exports.AUTH_BASIC && (currAuth.user || currAuth.pass)) {
         headers['Authorization'] = 'Basic ' + toBase64(currAuth.user + ':' + currAuth.pass);
+      }
+      else if(currAuth.type === exports.AUTH_COOKIE) {
+        if(http && typeof publicThat.getCookie('AuthSession') !== 'string') {
+          throw 'Trying to use cookie auth, but we never got an AuthSession cookie from the server.';
+        }
+
+        headers['X-CouchDB-WWW-Authenticate'] = 'Cookie';
       }
 
       if(http) {
@@ -211,8 +242,6 @@
     }
 
     var publicThat = {
-      AUTH_BASIC: 'AUTH_BASIC',
-
       get: function(opts) {
         throwIfNoCurrDB();
 
@@ -575,8 +604,6 @@
         }
 
         procPacket('PUT', '/' + name, null, null, callback);
-
-        return publicThat;
       },
 
       deleteDatabase: function(name, callback) {
@@ -589,8 +616,6 @@
         }
 
         procPacket('DELETE', '/' + name, null, null, callback);
-
-        return publicThat;
       },
 
       setAttachment: function(opts) {
@@ -789,20 +814,71 @@
         return publicThat;
       },
 
-      login: function(user, pass, type) {
-        currAuth.type = type || publicThat.AUTH_BASIC;
-
-        switch(currAuth.type) {
-          case publicThat.AUTH_BASIC:
-            currAuth.user = user;
-            currAuth.pass = pass;
-
-            return true;
-
-            break;
+      login: function(opts) {
+        if(typeof opts !== 'object') {
+          throw 'Invalid options object.';
         }
 
-        throw 'Unknown auth type.';
+        if(opts.callback && typeof opts.callback !== 'function') {
+          throw 'Invalid callback.';
+        }
+
+        if(opts.user && typeof opts.user !== 'string') {
+          throw 'Invalid user.';
+        }
+
+        if(opts.pass && typeof opts.pass !== 'string') {
+          throw 'Invalid pass.';
+        }
+
+        if(opts.type && typeof opts.type !== 'string') {
+          throw 'Invalid type of auth - use AUTH_BASIC or AUTH_COOKIE.';
+        }
+
+        if(!opts.type || opts.type === exports.AUTH_BASIC) {
+          currAuth.type = exports.AUTH_BASIC;
+          currAuth.user = opts.user;
+          currAuth.pass = opts.pass;
+
+          if(opts.callback) {
+            opts.callback(publicThat);
+          }
+          else {
+            return publicThat;
+          }
+        }
+        else if(opts.type === exports.AUTH_COOKIE) {
+          //TODO url encode
+          procPacket(
+            'POST',
+            '/_session',
+            'name=' + opts.user + '&password=' + opts.pass,
+            {
+              'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            function(resp) {
+              if(resp.cookies && resp.cookies.AuthSession) {
+                publicThat.setCookie(
+                  'AuthSession',
+                  resp.cookies.AuthSession
+                );
+
+                currAuth.type = opts.type;
+              }
+
+              if(opts.callback) {
+                opts.callback(publicThat);
+              }
+            }
+          );
+
+          if(!opts.callback) {
+            return publicThat;
+          }
+        }
+        else {
+          throw 'Unknown auth type.';
+        }
       }
     };
 

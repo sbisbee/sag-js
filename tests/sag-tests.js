@@ -5,11 +5,19 @@ var isArray = Array.isArray || function(arg) {
   return Object.prototype.toString.call(arg) == '[object Array]';
 };
 
-function makeCouch(setDB) {
+function makeCouch(setDB, loginCallback) {
   var couch = sag.server('localhost', '80');
 
-  couch.setPathPrefix('/db')
-        .login('admin', 'passwd');
+  couch.setPathPrefix('/db');
+
+  if(loginCallback) {
+    couch.login({
+      user: 'admin',
+      pass: 'passwd',
+      type: sag.AUTH_COOKIE,
+      callback: loginCallback
+    });
+  }
 
   if(setDB) {
     couch.setDatabase(dbName);
@@ -29,19 +37,16 @@ test('setPathPrefix()', function() {
 });
 
 test('Init', function() {
-  var couch;
+  var couch = makeCouch(false);
   expect(1);
-
-  couch = makeCouch(false);
 
   equal(typeof couch, 'object', 'server() should return an object');
 });
 
 test('setDatabase() and currentDatabase()', function() {
-  var couch;
-  expect(3);
+  var couch = makeCouch(false);
 
-  couch = makeCouch(false);
+  expect(3);
 
   equal(couch.currentDatabase(), undefined, 'no db yet');
 
@@ -62,12 +67,9 @@ test('cookies', function() {
 });
 
 asyncTest('createDatabase()', function() {
-  var couch;
-  expect(3);
+  expect(2);
 
-  couch = makeCouch(false);
-
-  equal(
+  makeCouch(false, function(couch) {
     couch.createDatabase(dbName, function(resp) {
       equal(resp.body.ok, true, 'JSON body/parsing check');
       equal(resp._HTTP.status, '201', 'Proper HTTP code');
@@ -75,82 +77,77 @@ asyncTest('createDatabase()', function() {
       couch.deleteDatabase(dbName, function(r) {
         start();
       });
-    }),
-    couch,
-    'returns sag object'
-  );
+    });
+  });
 });
 
 asyncTest('setDatabase() and create if does not exist', function() {
-  var couch;
   expect(2);
 
-  couch = makeCouch(false);
+  makeCouch(false, function(couch) {
 
-  couch.setDatabase(dbName);
+    couch.setDatabase(dbName);
 
-  couch.get({
-    url: '/',
-    callback: function(resp) {
-      equal(resp._HTTP.status, 404, 'expect it to not be there');
+    couch.get({
+      url: '/',
+      callback: function(resp) {
+        equal(resp._HTTP.status, 404, 'expect it to not be there');
 
-      couch.setDatabase(dbName, true, function(exists) {
-        ok(exists, 'db should exist now');
+        couch.setDatabase(dbName, true, function(exists) {
+          ok(exists, 'db should exist now');
 
-        start();
-      });
-    }
+          start();
+        });
+      }
+    });
   });
 });
 
 asyncTest('decode()', function() {
-  var couch;
   expect(5);
 
-  couch = makeCouch(true);
+  makeCouch(true, function(couch) {
+    equal(couch.decode(false), couch, 'returns the sag obj');
 
-  equal(couch.decode(false), couch, 'returns the sag obj');
+    couch.get({
+      url: '/',
+      callback: function(resp) {
+        equal(resp._HTTP.status, 200, 'got a response');
+        equal(typeof resp.body, 'string', 'no decode');
 
-  couch.get({
-    url: '/',
-    callback: function(resp) {
-      equal(resp._HTTP.status, 200, 'got a response');
-      equal(typeof resp.body, 'string', 'no decode');
+        couch.decode(true);
 
-      couch.decode(true);
+        couch.get({
+          url: '/',
+          callback: function(resp) {
+            equal(resp._HTTP.status, 200, 'got a response');
+            equal(typeof resp.body, 'object', 'no decode');
 
-      couch.get({
-        url: '/',
-        callback: function(resp) {
-          equal(resp._HTTP.status, 200, 'got a response');
-          equal(typeof resp.body, 'object', 'no decode');
-
-          start();
-        }
-      });
-    }
+            start();
+          }
+        });
+      }
+    });
   });
 });
 
 asyncTest('get()', function() {
-  var couch;
   expect(2);
 
-  couch = makeCouch(true);
+  makeCouch(true, function(couch) {
+    couch.get({
+      url: '',
+      callback: function(resp) {
+        equal(resp._HTTP.status, 200, 'got a 200');
+        equal(typeof resp.body, 'object', 'body is decoded');
 
-  couch.get({
-    url: '',
-    callback: function(resp) {
-      equal(resp._HTTP.status, 200, 'got a 200');
-      equal(typeof resp.body, 'object', 'body is decoded');
-
-      start();
-    }
+        start();
+      }
+    });
   });
 });
 
 asyncTest('put()', function() {
-  var couch;
   var docID = 'wellhellothere';
   var docData = {
     _id: docID,
@@ -160,102 +157,98 @@ asyncTest('put()', function() {
 
   expect(4);
 
-  couch = makeCouch(true);
+  makeCouch(true, function(couch) {
+    couch.put({
+      id: docID,
+      data: docData,
+      callback: function(resp) {
+        equal(resp._HTTP.status, 201, 'got a 201');
+        equal(resp.body.id, docID, 'got the id');
 
-  couch.put({
-    id: docID,
-    data: docData,
-    callback: function(resp) {
-      equal(resp._HTTP.status, 201, 'got a 201');
-      equal(resp.body.id, docID, 'got the id');
+        docData._rev = resp.body.rev;
 
-      docData._rev = resp.body.rev;
+        couch.put({
+          id: docID,
+          data: docData,
+          callback: function(resp) {
+            equal(resp._HTTP.status, 201, 'got a 201');
 
-      couch.put({
-        id: docID,
-        data: docData,
-        callback: function(resp) {
-          equal(resp._HTTP.status, 201, 'got a 201');
+            //for the next call and its deepEqual()
+            docData._rev = resp.body.rev;
 
-          //for the next call and its deepEqual()
-          docData._rev = resp.body.rev;
+            couch.get({
+              url: docID,
+              callback: function(resp) {
+                deepEqual(resp.body, docData, 'got the body');
 
-          couch.get({
-            url: docID,
-            callback: function(resp) {
-              deepEqual(resp.body, docData, 'got the body');
-
-              start();
-            }
-          });
-        }
-      });
-    }
+                start();
+              }
+            });
+          }
+        });
+      }
+    });
   });
 });
 
 asyncTest('post()', function() {
-  var couch;
   var docData = {
     foo: 'bar'
   };
 
   expect(2);
 
-  couch = makeCouch(true);
+  makeCouch(true, function(couch) {
+    couch.post({
+      data: docData,
+      callback: function(resp) {
+        equal(resp._HTTP.status, 201, 'got a 201');
 
-  couch.post({
-    data: docData,
-    callback: function(resp) {
-      equal(resp._HTTP.status, 201, 'got a 201');
+        //for the next call and deepEqual
+        docData._id = resp.body.id;
+        docData._rev = resp.body.rev;
 
-      //for the next call and deepEqual
-      docData._id = resp.body.id;
-      docData._rev = resp.body.rev;
+        couch.get({
+          url: resp.body.id,
+          callback: function(resp) {
+            deepEqual(resp.body, docData, 'data got saved');
 
-      couch.get({
-        url: resp.body.id,
-        callback: function(resp) {
-          deepEqual(resp.body, docData, 'data got saved');
-
-          start();
-        }
-      });
-    }
-  }); 
+            start();
+          }
+        });
+      }
+    }); 
+  });
 });
 
 asyncTest('getAllDatabases()', function() {
-  var couch;
   expect(3);
 
-  couch = makeCouch(true);
+  makeCouch(true, function(couch) {
+    couch.getAllDatabases(function(resp) {
+      var hasOurDb = false;
 
-  couch.getAllDatabases(function(resp) {
-    var hasOurDb = false;
+      equal(resp._HTTP.status, 200, 'got a 200');
+      ok(isArray(resp.body));
 
-    equal(resp._HTTP.status, 200, 'got a 200');
-    ok(isArray(resp.body));
-
-    for(var i in resp.body) {
-      if(resp.body[i] === dbName) {
-        hasOurDb = true;
-        break;
+      for(var i in resp.body) {
+        if(resp.body[i] === dbName) {
+          hasOurDb = true;
+          break;
+        }
       }
-    }
 
-    ok(hasOurDb, 'Our DB should be in the list.');
+      ok(hasOurDb, 'Our DB should be in the list.');
 
-    start();
+      start();
+    });
   });
 });
 
 asyncTest('head()', function() {
-  var couch = makeCouch(true);
+  expect(2);
 
-  expect(3);
-
-  equal(
+  makeCouch(true, function(couch) {
     couch.head({
       url: '/',
       callback: function(resp) {
@@ -264,40 +257,38 @@ asyncTest('head()', function() {
 
         start();
       }
-    }),
-    couch,
-    'Got the couch object back.'
-  );
+    });
+  });
 });
 
 asyncTest('post(), delete(), then head()', function() {
-  var couch = makeCouch(true);
-
   expect(3);
 
-  couch.post({
-    data: {},
-    callback: function(resp) {
-      var id = resp.body.id;
-      var rev = resp.body.rev;
+  makeCouch(true, function(couch) {
+    couch.post({
+      data: {},
+      callback: function(resp) {
+        var id = resp.body.id;
+        var rev = resp.body.rev;
 
-      equal(
-        couch.delete(id, rev, function(resp) {
-          equal(resp._HTTP.status, 200, 'got a 200');
+        equal(
+          couch.delete(id, rev, function(resp) {
+            equal(resp._HTTP.status, 200, 'got a 200');
 
-          couch.head({
-            url: id,
-            callback: function(resp) {
-              equal(resp._HTTP.status, 404, 'got a 404 after delete()');
+            couch.head({
+              url: id,
+              callback: function(resp) {
+                equal(resp._HTTP.status, 404, 'got a 404 after delete()');
 
-              start();
-            }
-          });
-        }),
-        couch,
-        'Got the couch object back'
-      );
-    }
+                start();
+              }
+            });
+          }),
+          couch,
+          'Got the couch object back'
+        );
+      }
+    });
   });
 });
 
@@ -313,159 +304,158 @@ asyncTest('bulk()', function() {
     }
   ];
 
-  var couch = makeCouch(true);
-
   expect(2 + docs.length);
 
-  couch.bulk({
-    docs: docs,
-    callback: function(resp) {
-      equal(resp._HTTP.status, 201, 'got a 201 back');
-      equal(resp.body.length, docs.length, 'proper array size');
+  makeCouch(true, function(couch) {
+    couch.bulk({
+      docs: docs,
+      callback: function(resp) {
+        equal(resp._HTTP.status, 201, 'got a 201 back');
+        equal(resp.body.length, docs.length, 'proper array size');
 
-      for(var i in resp.body) {
-        equal(resp.body[i].id, docs[i]._id, 'matching _id');
+        for(var i in resp.body) {
+          equal(resp.body[i].id, docs[i]._id, 'matching _id');
+        }
+
+        start();
       }
-
-      start();
-    }
+    });
   });
 });
 
 asyncTest('copy() to new doc', function() {
-  var couch = makeCouch(true);
-
   expect(2);
 
-  couch.copy({
-    srcID: 'one',
-    dstID: 'oneCopy',
-    callback: function(resp) {
-      equal(resp._HTTP.status, 201, 'got a 201 back');
-      equal(resp.body.id, 'oneCopy', 'got the id back');
+  makeCouch(true, function(couch) {
+    couch.copy({
+      srcID: 'one',
+      dstID: 'oneCopy',
+      callback: function(resp) {
+        equal(resp._HTTP.status, 201, 'got a 201 back');
+        equal(resp.body.id, 'oneCopy', 'got the id back');
 
-      start();
-    }
+        start();
+      }
+    });
   });
 });
 
 asyncTest('copy() to overwrite', function() {
-  var couch = makeCouch(true);
-
   expect(4);
 
-  //overwrite 'two' with 'one'
-  couch.get({
-    url: 'two',
-    callback: function(resp) {
-      equal(resp._HTTP.status, 200, 'got a 200 back');
-      ok(resp.body._id, 'has an _id');
-      ok(resp.body._rev, 'has a _rev');
+  makeCouch(true, function(couch) {
+    //overwrite 'two' with 'one'
+    couch.get({
+      url: 'two',
+      callback: function(resp) {
+        equal(resp._HTTP.status, 200, 'got a 200 back');
+        ok(resp.body._id, 'has an _id');
+        ok(resp.body._rev, 'has a _rev');
 
-      couch.copy({
-        srcID: 'one',
-        dstID: resp.body._id,
-        dstRev: resp.body._rev,
-        callback: function(resp) {
-          equal(resp._HTTP.status, 201, 'got a 201 back');
+        couch.copy({
+          srcID: 'one',
+          dstID: resp.body._id,
+          dstRev: resp.body._rev,
+          callback: function(resp) {
+            equal(resp._HTTP.status, 201, 'got a 201 back');
 
-          start();
-        }
-      });
-    }
+            start();
+          }
+        });
+      }
+    });
   });
 });
 
 asyncTest('setAttachment()', function() {
-  var couch = makeCouch(true);
   var attachment = {
     name: 'lyrics',
     data: 'If I could turn back time...',
     cType: 'text/ascii'
   };
 
-  couch.get({
-    url: 'one',
-    callback: function(resp) {
-      var doc = {
-        id: resp.body._id,
-        rev: resp.body._rev
+  makeCouch(true, function(couch) {
+    couch.get({
+      url: 'one',
+      callback: function(resp) {
+        var doc = {
+          id: resp.body._id,
+          rev: resp.body._rev
+        };
+
+        equal(resp._HTTP.status, 200, 'got a 200 back');
+
+        couch.setAttachment({
+          docID: doc.id,
+          docRev: doc.rev,
+
+          name: attachment.name,
+          data: attachment.data,
+          contentType: attachment.cType,
+
+          callback: function(resp) {
+            equal(resp._HTTP.status, 201, 'got a 201 back');
+
+            couch.get({
+              url: '/' + doc.id + '/' + attachment.name,
+              callback: function(resp) {
+                equal(resp._HTTP.status, 200, 'got a 200 back');
+                equal(resp.body, attachment.data, 'proper data');
+                equal(
+                  resp.headers['content-type'],
+                  attachment.cType,
+                  'proper Content-Type header'
+                );
+
+                start();
+              }
+            });
+          }
+        });
       }
-
-      equal(resp._HTTP.status, 200, 'got a 200 back');
-
-      couch.setAttachment({
-        docID: doc.id,
-        docRev: doc.rev,
-
-        name: attachment.name,
-        data: attachment.data,
-        contentType: attachment.cType,
-
-        callback: function(resp) {
-          equal(resp._HTTP.status, 201, 'got a 201 back');
-
-          couch.get({
-            url: '/' + doc.id + '/' + attachment.name,
-            callback: function(resp) {
-              equal(resp._HTTP.status, 200, 'got a 200 back');
-              equal(resp.body, attachment.data, 'proper data');
-              equal(
-                resp.headers['content-type'],
-                attachment.cType,
-                'proper Content-Type header'
-              );
-
-              start();
-            }
-          });
-        }
-      });
-    }
+    });
   });
 });
 
 asyncTest('replicate()', function() {
-  var couch = makeCouch(false);
-
   expect(2);
 
-  couch.replicate({
-    source: dbName,
-    target: dbNameRepl,
-    createTarget: true,
-    continuous: false,
-    callback: function(resp) {
-      equal(resp._HTTP.status, 200, 'got a 200 back');
-      ok(resp.body.ok, 'ok');
+  makeCouch(false, function(couch) {
+    couch.replicate({
+      source: dbName,
+      target: dbNameRepl,
+      createTarget: true,
+      continuous: false,
+      callback: function(resp) {
+        equal(resp._HTTP.status, 200, 'got a 200 back');
+        ok(resp.body.ok, 'ok');
 
-      couch.deleteDatabase(dbNameRepl);
+        couch.deleteDatabase(dbNameRepl);
 
-      start();
-    }
+        start();
+      }
+    });
   });
 });
 
 asyncTest('getAllDocs()', function() {
-  var couch = makeCouch(true);
-
   expect(1);
 
-  couch.getAllDocs({
-    limit: 10,
-    includeDocs: true,
-    descending: true,
-    callback: function(resp) {
-      equal(resp._HTTP.status, 200, 'got our 200');
+  makeCouch(true, function(couch) {
+    couch.getAllDocs({
+      limit: 10,
+      includeDocs: true,
+      descending: true,
+      callback: function(resp) {
+        equal(resp._HTTP.status, 200, 'got our 200');
 
-      start();
-    }
+        start();
+      }
+    });
   });
 });
 
 asyncTest('setStaleDefault() with view', function() {
-  var couch = makeCouch(true);
-
   var url = '/_design/app/_view/count';
   var value;
 
@@ -481,71 +471,68 @@ asyncTest('setStaleDefault() with view', function() {
 
   expect(7);
 
-  //create the ddoc
-  couch.put({
-    id: ddoc._id,
-    data: ddoc,
-    callback: function(resp) {
-      equal(resp._HTTP.status, 201, 'got a 201');
+  makeCouch(true, function(couch) {
+    //create the ddoc
+    couch.put({
+      id: ddoc._id,
+      data: ddoc,
+      callback: function(resp) {
+        equal(resp._HTTP.status, 201, 'got a 201');
 
-      //pump results into the ddoc
-      couch.get({
-        url: url,
-        callback: function(resp) {
-          equal(resp._HTTP.status, 200, 'got a 200');
+        //pump results into the ddoc
+        couch.get({
+          url: url,
+          callback: function(resp) {
+            equal(resp._HTTP.status, 200, 'got a 200');
 
-          //store the value before we write again
-          value = resp.body.rows[0].value;
+            //store the value before we write again
+            value = resp.body.rows[0].value;
 
-          //set the default
-          couch.setStaleDefault(true);
+            //set the default
+            couch.setStaleDefault(true);
 
-          //write another doc, making the view results stale
-          couch.post({
-            data: {},
-            callback: function(resp) {
-              equal(resp._HTTP.status, 201, 'got a 201');
+            //write another doc, making the view results stale
+            couch.post({
+              data: {},
+              callback: function(resp) {
+                equal(resp._HTTP.status, 201, 'got a 201');
 
-              //grab the stale results
-              couch.get({
-                url: url,
-                callback: function(resp) {
-                  equal(resp._HTTP.status, 200, 'got a 200');
-                  equal(resp.body.rows[0].value, value, 'got stale value');
+                //grab the stale results
+                couch.get({
+                  url: url,
+                  callback: function(resp) {
+                    equal(resp._HTTP.status, 200, 'got a 200');
+                    equal(resp.body.rows[0].value, value, 'got stale value');
 
-                  couch.setStaleDefault(false).get({
-                    url: url,
-                    callback: function(resp) {
-                      equal(resp._HTTP.status, 200, 'got a 200');
-                      notEqual(resp.body.rows[0].value, value, 'got a new one');
+                    couch.setStaleDefault(false).get({
+                      url: url,
+                      callback: function(resp) {
+                        equal(resp._HTTP.status, 200, 'got a 200');
+                        notEqual(resp.body.rows[0].value, value, 'got a new one');
 
-                      start();
-                    }
-                  });
-                }
-              });
-            }
-          });
-        }
-      });
-    }
+                        start();
+                      }
+                    });
+                  }
+                });
+              }
+            });
+          }
+        });
+      }
+    });
   });
 });
 
 asyncTest('deleteDatabase()', function() {
-  var couch;
-  expect(3);
+  expect(2);
 
-  couch = makeCouch(false);
-
-  equal(
+  makeCouch(true, function(couch) {
     couch.deleteDatabase(dbName, function(resp) {
       equal(resp.body.ok, true, 'JSON body/parsing check');
       equal(resp._HTTP.status, '200', 'Proper HTTP code');
 
       start();
-    }),
-    couch,
-    'returns sag object'
-  );
+    });
+  });
 });
