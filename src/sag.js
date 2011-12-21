@@ -44,6 +44,8 @@
       if(typeof btoa === 'function') {
         return btoa(str);
       }
+
+      throw 'No base64 encoder available.';
     }
 
     function onResponse(httpCode, headers, body, callback) {
