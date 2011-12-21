@@ -14,6 +14,7 @@
     var staleDefault = false;
     var globalCookies = {};
     var pathPrefix = '';
+    var currAuth = {};
 
     function throwIfNoCurrDB() {
       if(!currDatabase) {
@@ -33,6 +34,16 @@
     }
     else {
       throw 'whoops';
+    }
+
+    function toBase64(str) {
+      if(typeof Buffer === 'function') {
+        return new Buffer(str).toString('base64');
+      }
+
+      if(typeof btoa === 'function') {
+        return btoa(str);
+      }
     }
 
     function onResponse(httpCode, headers, body, callback) {
@@ -84,6 +95,10 @@
 
       if(pathPrefix) {
         path = pathPrefix + path;
+      }
+
+      if(currAuth.type === publicThat.AUTH_BASIC && (currAuth.user || currAuth.pass)) {
+        headers['Authorization'] = 'Basic ' + toBase64(currAuth.user + ':' + currAuth.pass);
       }
 
       if(http) {
@@ -194,6 +209,8 @@
     }
 
     var publicThat = {
+      AUTH_BASIC: 'AUTH_BASIC',
+
       get: function(opts) {
         throwIfNoCurrDB();
 
@@ -768,6 +785,22 @@
         pathPrefix = pre || '';
 
         return publicThat;
+      },
+
+      login: function(user, pass, type) {
+        currAuth.type = type || publicThat.AUTH_BASIC;
+
+        switch(currAuth.type) {
+          case publicThat.AUTH_BASIC:
+            currAuth.user = user;
+            currAuth.pass = pass;
+
+            return true;
+
+            break;
+        }
+
+        throw 'Unknown auth type.';
       }
     };
 

@@ -8,7 +8,8 @@ var isArray = Array.isArray || function(arg) {
 function makeCouch(setDB) {
   var couch = sag.server('localhost', '80');
 
-  couch.setPathPrefix('/db');
+  couch.setPathPrefix('/db')
+        .login('admin', 'passwd');
 
   if(setDB) {
     couch.setDatabase(dbName);

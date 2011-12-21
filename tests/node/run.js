@@ -6,7 +6,8 @@ var initSandbox = {
   console: console,
   require: require,
   setTimeout: setTimeout,
-  clearTimeout: clearTimeout
+  clearTimeout: clearTimeout,
+  Buffer: Buffer
 };
 
 var context = vm.createContext(initSandbox);
