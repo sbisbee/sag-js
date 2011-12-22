@@ -90,7 +90,7 @@
       }
 
       if(typeof callback === 'function') {
-        callback(resp);
+        callback(resp, (resp._HTTP.status < 400));
       }
     }
 
