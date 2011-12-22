@@ -21,6 +21,9 @@
     var pathPrefix = '';
     var currAuth = {};
 
+    host = host || 'localhost';
+    port = port || '5984';
+
     function throwIfNoCurrDB() {
       if(!currDatabase) {
         throw 'Must setDatabase() first.';
