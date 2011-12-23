@@ -292,16 +292,16 @@
 
         path = '/' + currDatabase;
 
-        if(opts.path) {
-          if(typeof opts.path !== 'string') {
-            throw 'Invalid path type (must be a string).';
+        if(opts.url) {
+          if(typeof opts.url !== 'string') {
+            throw 'Invalid url type (must be a string).';
           }
 
-          if(opts.path.substr(0, 1) !== '/') {
+          if(opts.url.substr(0, 1) !== '/') {
             path += '/';
           }
 
-          path += opts.path;
+          path += opts.url;
         }
 
         procPacket('POST', path, opts.data, null, opts.callback);
