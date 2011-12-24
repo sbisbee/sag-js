@@ -1,0 +1,17 @@
+{
+  "author": "Sam Bisbee <sam@sbisbee.com> (http://www.sbisbee.com)",
+  "name": "sag",
+  "description": "A light weight library for connecting to CouchDB that works in both Node and the browser.",
+  "version": "0.1.0",
+  "homepage": "http://www.saggingcouch.com",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/sbisbee/sag-js.git"
+  },
+  "main": "sag.js",
+  "engines": {
+    "node": "0.6 || 0.4"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
