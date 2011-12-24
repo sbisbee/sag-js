@@ -14,7 +14,7 @@ POSTPROC := "${BUILD_DIR}/postproc.js"
 
 NODE_TESTS_DIR := "${TESTS_DIR}/node"
 
-DIST_FILES := ./src/sag.js LICENSE NOTICE README
+DIST_FILES := ./src/sag.js LICENSE NOTICE README CHANGELOG
 
 UGLIFY_OPTS := "--unsafe"
 
