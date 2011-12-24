@@ -3,11 +3,13 @@ var print = require('sys').print;
 var src = require('fs').readFileSync(process.argv[2], 'utf8');
 
 JSHINT(src, {
+  node: true,
+  browser: true,
   evil: true,
   forin: true,
   maxerr: 100,
   noempty: true,
-  nomen: true,
+  nomen: false,
   node: true
 });
 
