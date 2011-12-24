@@ -2,6 +2,8 @@
 NODE := node
 UGLIFY := uglifyjs
 GPG := gpg
+SHA1SUM := sha1sum
+MD5SUM := md5sum
 
 # Version we're building
 VERSION := 0.1.0
@@ -63,6 +65,9 @@ dist:
 
 	tar -zcvvf ${DIST_FILE} ${DIST_DIR}
 	rm -rf ${DIST_DIR}
+
+	${SHA1SUM} ${DIST_FILE} > ${DIST_FILE_SHA1}
+	${MD5SUM} ${DIST_FILE} > ${DIST_FILE_MD5}
 
 sign: dist
 	${GPG} --output ${DIST_FILE_SIG} --detach-sig ${DIST_FILE}

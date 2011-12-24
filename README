@@ -14,6 +14,14 @@ you just pass objects in and get objects back. This makes it trivial to
 include Sag in your application, build different functionality on top of it,
 and expand Sag to include new CouchDB functionality.
 
+Install
+-------
+
+Node: `npm install sag` or include the source file in your project.
+
+Browser: Include the source file in your project and embed it with a script
+tag.
+
 Compatability
 -------------
 
