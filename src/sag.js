@@ -9,46 +9,47 @@
 
   //the meat
   exports.server = function(host, port, user, pass) {
+    // The API that server returns.
+    var publicThat;
+
+    /*
+     * http is the node module whereas xmlHTTP is the XHR object. Also a good
+     * way to detect whether you're in node or browser land.
+     */
     var http;
     var xmlHTTP;
 
+    // If in node land this is the url module.
     var urlUtils;
 
+    // Whether we should decode response bodies or not.
     var decodeJSON = true;
+    // The current database.
     var currDatabase;
+    // Whether ?stale=ok should be put into URLs by default or not.
     var staleDefault = false;
+    // The cookies from setCookie() and getCookie()
     var globalCookies = {};
+    // User supplied path prefix.
     var pathPrefix = '';
+    // Stores the auth info: user, pass, type
     var currAuth = {};
 
-    host = host || 'localhost';
-    port = port || '5984';
-
+    // Utility function to remove a bunch of dupe code.
     function throwIfNoCurrDB() {
       if(!currDatabase) {
         throw 'Must setDatabase() first.';
       }
     }
 
-    if(typeof XMLHttpRequest === 'function') {
-      xmlHTTP = new XMLHttpRequest();
-    }
-    else if(typeof ActiveXObject === 'function') {
-      xmlHTTP = new ActiveXObject('Microsoft.XMLHTTP');
-    }
-    else if(typeof require === 'function') {
-      http = require('http');
-      urlUtils = require('url');
-    }
-    else {
-      throw 'whoops';
-    }
-
+    // Because JS can't do base 64 on its own (wtf?)
     function toBase64(str) {
+      //node
       if(typeof Buffer === 'function') {
         return new Buffer(str).toString('base64');
       }
 
+      //browser
       if(typeof btoa === 'function') {
         return btoa(str);
       }
@@ -56,6 +57,7 @@
       throw 'No base64 encoder available.';
     }
 
+    // Common interface for XHR and http[s] modules to send responses to.
     function onResponse(httpCode, headers, body, callback) {
       var resp = {
         _HTTP: {
@@ -68,6 +70,7 @@
 
       if(typeof body === 'string') {
         try {
+          //JSON decode
           resp.body = (body.length > 0 && decodeJSON) ? JSON.parse(body) : body;
         }
         catch(e) {
@@ -94,6 +97,7 @@
       }
     }
 
+    // The common interface for the API functions to cause a net call.
     function procPacket(method, path, data, headers, callback) {
       var cookieStr = '';
 
@@ -114,7 +118,9 @@
         }
       }
 
+      //only when we built a cookieStr above
       if(cookieStr) {
+        //debug help
         if(xmlHTTP && console && typeof console.log === 'function') {
           console.log('Sending Cookie header, but do not expect any cookies in the result - CouchDB uses httpOnly cookies.');
         }
@@ -126,6 +132,7 @@
         path = pathPrefix + path;
       }
 
+      //authentication
       if(currAuth.type === exports.AUTH_BASIC && (currAuth.user || currAuth.pass)) {
         headers['Authorization'] = 'Basic ' + toBase64(currAuth.user + ':' + currAuth.pass);
       }
@@ -181,11 +188,14 @@
       else if(xmlHTTP) {
         // Browser xhr magik
         xmlHTTP.onreadystatechange = function() {
-          if(this.readyState === 4 && this.status > 0) {
-            var headers = {};
-            var rawHeaders = this.getAllResponseHeaders().split('\n');
+          var headers = {};
+          var rawHeaders;
+          var i;
 
-            for(var i in rawHeaders) {
+          if(this.readyState === 4 && this.status > 0) {
+            rawHeaders = this.getAllResponseHeaders().split('\n');
+
+            for(i in rawHeaders) {
               if(rawHeaders.hasOwnProperty(i)) {
                 rawHeaders[i] = rawHeaders[i].split(': ');
 
@@ -206,9 +216,9 @@
 
         xmlHTTP.open(method, 'http://' + host + ':' + port + path);
 
-        for(var k in headers) {
-          if(headers.hasOwnProperty(k)) {
-            xmlHTTP.setRequestHeader(k, headers[k]);
+        for(i in headers) {
+          if(headers.hasOwnProperty(i)) {
+            xmlHTTP.setRequestHeader(i, headers[i]);
           }
         }
 
@@ -219,6 +229,7 @@
       }
     }
 
+    // Adds a query param to a URL.
     function setURLParameter(url, key, value) {
       if(typeof url !== 'string') {
         throw 'URLs must be a string';
@@ -244,7 +255,26 @@
       return url;
     }
 
-    var publicThat = {
+    //defaults
+    host = host || 'localhost';
+    port = port || '5984';
+
+    //environment and http engine detection
+    if(typeof XMLHttpRequest === 'function') {
+      xmlHTTP = new XMLHttpRequest();
+    }
+    else if(typeof ActiveXObject === 'function') {
+      xmlHTTP = new ActiveXObject('Microsoft.XMLHTTP');
+    }
+    else if(typeof require === 'function') {
+      http = require('http');
+      urlUtils = require('url');
+    }
+    else {
+      throw 'whoops';
+    }
+
+    publicThat = {
       get: function(opts) {
         throwIfNoCurrDB();
 
