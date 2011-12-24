@@ -4,7 +4,7 @@ UGLIFY := uglifyjs
 GPG := gpg
 
 # Version we're building
-VERSION := "0.1.0"
+VERSION := 0.1.0
 
 # Primary locations
 BUILD_DIR := ./build
