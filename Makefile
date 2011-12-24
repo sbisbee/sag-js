@@ -14,7 +14,7 @@ POSTPROC := "${BUILD_DIR}/postproc.js"
 
 NODE_TESTS_DIR := "${TESTS_DIR}/node"
 
-DIST_FILES := ./src/sag.js LICENSE NOTICE README package.json
+DIST_FILES := ./src/sag.js LICENSE NOTICE README
 
 UGLIFY_OPTS := "--unsafe"
 
@@ -39,6 +39,8 @@ dist-node:
 	@@mv ${DIST_NODE_DIR}/sag.js ${DIST_NODE_DIR}/sag-${VERSION}.js
 	@@echo "Post Processing ${DIST_NODE_DIR}/sag-${VERSION}.js"
 	@@${NODE} ${POSTPROC} ${DIST_NODE_DIR}/sag-${VERSION}.js ${VERSION}
+	@@cp package.json ${DIST_NODE_DIR}
+	@@sed -i -e '/"main":/s/sag\.js/sag-0.1.0.js/' -e '/"version":/s/UNRELEASED/0.1.0/' ${DIST_NODE_DIR}/package.json
 
 dist-browser:
 	@@mkdir ${DIST_BROWSER_DIR}
