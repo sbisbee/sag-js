@@ -6,8 +6,7 @@ VERSION := "0.1.0"
 BUILD_DIR := "./build"
 SRC_DIR := "./src"
 TESTS_DIR := "./tests"
-DIST_NODE_DIR := "./dist-node"
-DIST_BROWSER_DIR := "./dist-browser"
+DIST_DIR := "./sag-js-${VERSION}"
 
 JSHINT_FILE := "${BUILD_DIR}/jshint.js"
 POSTPROC := "${BUILD_DIR}/postproc.js"
@@ -30,23 +29,13 @@ check:
 		${NODE} ./run.js && \
 		cd - > /dev/null
 
-min:
-	@@${UGLIFY}
-
-dist-node:
-	@@mkdir ${DIST_NODE_DIR}
-	@@cp ${DIST_FILES} ${DIST_NODE_DIR}
-	@@mv ${DIST_NODE_DIR}/sag.js ${DIST_NODE_DIR}/sag-${VERSION}.js
-	@@echo "Post Processing ${DIST_NODE_DIR}/sag-${VERSION}.js"
-	@@${NODE} ${POSTPROC} ${DIST_NODE_DIR}/sag-${VERSION}.js ${VERSION}
-	@@cp package.json ${DIST_NODE_DIR}
-	@@sed -i -e '/"main":/s/sag\.js/sag-0.1.0.js/' -e '/"version":/s/UNRELEASED/0.1.0/' ${DIST_NODE_DIR}/package.json
-
-dist-browser:
-	@@mkdir ${DIST_BROWSER_DIR}
-	@@cp ${DIST_FILES} ${DIST_BROWSER_DIR}
-	@@mv ${DIST_BROWSER_DIR}/sag.js ${DIST_BROWSER_DIR}/sag-${VERSION}.js
-	@@for file in `ls ${DIST_BROWSER_DIR}/*.js`; do \
+dist:
+	@@mkdir ${DIST_DIR}
+	@@cp ${DIST_FILES} ${DIST_DIR}
+	@@mv ${DIST_DIR}/sag.js ${DIST_DIR}/sag-${VERSION}.js
+	@@cp package.json ${DIST_DIR}
+	@@sed -i -e '/"main":/s/sag\.js/sag-0.1.0.js/' -e '/"version":/s/UNRELEASED/0.1.0/' ${DIST_DIR}/package.json
+	@@for file in `ls ${DIST_DIR}/*.js`; do \
 		fileMin=`echo $$file | sed -e 's/\.js/.min.js/'` ; \
 		echo "Minifying $$file => $$fileMin" ; \
 		${UGLIFY} ${UGLIFY_OPTS} $$file > $$fileMin ; \
@@ -55,8 +44,7 @@ dist-browser:
 		echo "Post Processing $$fileMin" ; \
 		${NODE} ${POSTPROC} $$fileMin ${VERSION} ; \
 	done
-
-dist: dist-node dist-browser
+	@@tar -zcvvf ${DIST_DIR}.tar ${DIST_DIR}
 
 clean:
-	@@rm -rf ${DIST_NODE_DIR} ${DIST_BROWSER_DIR}
+	@@rm -rf ${DIST_DIR}*
