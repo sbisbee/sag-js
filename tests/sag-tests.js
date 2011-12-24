@@ -310,11 +310,15 @@ asyncTest('bulk()', function() {
     couch.bulk({
       docs: docs,
       callback: function(resp) {
+        var i;
+
         equal(resp._HTTP.status, 201, 'got a 201 back');
         equal(resp.body.length, docs.length, 'proper array size');
 
-        for(var i in resp.body) {
-          equal(resp.body[i].id, docs[i]._id, 'matching _id');
+        for(i in resp.body) {
+          if(resp.body.hasOwnProperty(i)) {
+            equal(resp.body[i].id, docs[i]._id, 'matching _id');
+          }
         }
 
         start();

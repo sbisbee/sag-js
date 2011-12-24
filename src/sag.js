@@ -83,7 +83,7 @@
       if(headers['set-cookie']) {
         resp.cookies = {};
 
-        for(var i in headers['set-cookie']) {
+        for(i in headers['set-cookie']) {
           if(headers['set-cookie'].hasOwnProperty(i)) {
             pieces = headers['set-cookie'][i].split(';')[0].split('=');
             resp.cookies[pieces[0]] = pieces[1];
@@ -100,6 +100,8 @@
     // The common interface for the API functions to cause a net call.
     function procPacket(method, path, data, headers, callback) {
       var cookieStr = '';
+      var i;
+      var req;
 
       headers = headers || {};
 
@@ -112,9 +114,9 @@
       }
 
       //deal with global cookies
-      for(var key in globalCookies) {
-        if(globalCookies.hasOwnProperty(key)) {
-          cookieStr += key + '=' + globalCookies[key] + ';';
+      for(i in globalCookies) {
+        if(globalCookies.hasOwnProperty(i)) {
+          cookieStr += i + '=' + globalCookies[i] + ';';
         }
       }
 
@@ -134,7 +136,7 @@
 
       //authentication
       if(currAuth.type === exports.AUTH_BASIC && (currAuth.user || currAuth.pass)) {
-        headers['Authorization'] = 'Basic ' + toBase64(currAuth.user + ':' + currAuth.pass);
+        headers.Authorization = 'Basic ' + toBase64(currAuth.user + ':' + currAuth.pass);
       }
       else if(currAuth.type === exports.AUTH_COOKIE) {
         if(http && typeof publicThat.getCookie('AuthSession') !== 'string') {
@@ -148,7 +150,7 @@
         // Node.JS http module
         headers['User-Agent'] = 'Sag-JS/0.1'; //can't set this in browsers
 
-        var req = http.request(
+        req = http.request(
           {
             method: method,
             host: host,

@@ -1,5 +1,5 @@
 var JSHINT = require('./lib/jshint/jshint.js').JSHINT;
-var print = require('sys').print;
+var print = require('util').print;
 var src = require('fs').readFileSync(process.argv[2], 'utf8');
 
 JSHINT(src, {
