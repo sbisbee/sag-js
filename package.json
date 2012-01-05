@@ -13,5 +13,15 @@
     "node": "0.6 || 0.4"
   },
   "dependencies": {},
-  "devDependencies": {}
+  "devDependencies": {},
+  "keywords": [
+    "couchdb",
+    "database",
+    "nosql",
+    "ajax",
+    "network",
+    "networking",
+    "http",
+    "rest"
+  ]
 }
