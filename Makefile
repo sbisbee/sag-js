@@ -6,7 +6,7 @@ SHA1SUM := sha1sum
 MD5SUM := md5sum
 
 # Version we're building
-VERSION := "0.1.0"
+VERSION := 0.1.0
 
 # Primary locations
 BUILD_DIR := ./build
@@ -14,7 +14,7 @@ SRC_DIR := ./src
 TESTS_DIR := ./tests
 
 # Dist locations
-DIST_DIR := ./sag-js-${VERSION}
+DIST_DIR := sag-js-${VERSION}
 DIST_FILE := ${DIST_DIR}.tar.gz
 DIST_FILE_SIG := ${DIST_FILE}.sig
 DIST_FILE_SHA1 := ${DIST_FILE}.sha
