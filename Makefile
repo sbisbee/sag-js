@@ -13,16 +13,23 @@ BUILD_DIR := ./build
 SRC_DIR := ./src
 TESTS_DIR := ./tests
 
+# Source files in concat order
+SRC_FILES := ${SRC_DIR}/core.header.js\
+              ${SRC_DIR}/server.private.js\
+              ${SRC_DIR}/server.public.js\
+              ${SRC_DIR}/core.footer.js
+
 # Dist locations
 DIST_DIR := sag-js-${VERSION}
 DIST_FILE := ${DIST_DIR}.tar.gz
 DIST_FILE_SIG := ${DIST_FILE}.sig
 DIST_FILE_SHA1 := ${DIST_FILE}.sha
 DIST_FILE_MD5 := ${DIST_FILE}.md5
-DIST_FILES := ./src/sag.js LICENSE NOTICE README CHANGELOG
+DIST_FILES := sag.js LICENSE NOTICE README CHANGELOG
 
 # jshint
 JSHINT_FILE := ${BUILD_DIR}/jshint.js
+JSHINT_TARGETS := ./sag.js
 
 # post processing file
 POSTPROC := ${BUILD_DIR}/postproc.js
@@ -33,19 +40,24 @@ NODE_TESTS_DIR := ${TESTS_DIR}/node
 # uglify
 UGLIFY_OPTS := --unsafe
 
-hint:
-	@@for file in `ls ${SRC_DIR}/*.js ${TESTS_DIR}/*.js`; do \
+all: sag.js
+
+sag.js:
+	cat ${SRC_FILES} > sag.js
+
+hint: sag.js
+	@@for file in ${JSHINT_TARGETS}; do \
 		echo "Hinting: $$file"; \
 		${NODE} ${JSHINT_FILE} $$file; \
 		echo "--------------------------"; \
 	done
 
-check:
+check: sag.js
 	@@cd ${NODE_TESTS_DIR} && \
 		${NODE} ./run.js && \
 		cd - > /dev/null
 
-dist:
+dist: sag.js
 	mkdir ${DIST_DIR}
 	cp ${DIST_FILES} ${DIST_DIR}
 

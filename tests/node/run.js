@@ -51,7 +51,7 @@ fs.readFile('../browser/qunit/qunit/qunit.js', 'utf-8', function(err, data) {
   //forces qunit's internal queue to run the tests in order instead of asyncly
   context.QUnit.config.autorun = false;
 
-  fs.readFile('../../src/sag.js', 'utf-8', function(err, data) {
+  fs.readFile('../../sag.js', 'utf-8', function(err, data) {
     if(err) {
       throw err;
     }
