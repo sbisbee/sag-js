@@ -25,7 +25,8 @@ tag.
 Compatability
 -------------
 
-Sag-JS is API compatible with Sag 0.7.1.
+Sag-JS is API compatible with Sag 0.7.1 with a few asynchronous language
+specific additions.
 
 Each release is tested with an automated testing suite against these
 combinations of software:
@@ -53,8 +54,10 @@ README                          This file.
 
 Makefile                        Used to run unit tests, create releases, etc.
 
-src/sag.js                      This is the file you will use in your
-                                application, for both Node.JS and browser.
+src/                            This directory contains the pieces of source
+                                code tha will be combined to make the sag.js
+                                file. If you are building from source, then
+                                just run `make` to generate the file.
 
 tests/                          Contains the automated testing suite for
                                 Sag-JS and its own documentation.
