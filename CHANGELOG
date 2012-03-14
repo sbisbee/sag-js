@@ -6,11 +6,13 @@ Version 0.2.0
 
 New Features
 
+  * All of the thrown exceptions are now Error's instead of strings. Closes #1.
+
   * Introduction of `on('event', callback)` which allows you to create global
     event handlers. Currently the only event supported is 'error' whose
     callback gets the response object as its parameter. For example, you can
     make a global error handler by specifying
-    `sag.on('error', function(resp) { ... });`.
+    `sag.on('error', function(resp) { ... });`. Closes #5.
 
 Version 0.1.0
 -------------

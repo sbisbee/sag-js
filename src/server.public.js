@@ -3,15 +3,15 @@ publicThat = {
     throwIfNoCurrDB();
 
     if(typeof opts !== 'object') {
-      throw 'invalid opts object';
+      throw new Error('invalid opts object');
     }
 
     if(typeof opts.url !== 'string') {
-      throw 'invalid url type';
+      throw new Error('invalid url type');
     }
 
     if(opts.callback && typeof opts.callback !== 'function') {
-      throw 'invalid callback type';
+      throw new Error('invalid callback type');
     }
 
     if(opts.url.substr(0, 1) !== '/') {
@@ -37,18 +37,18 @@ publicThat = {
     throwIfNoCurrDB();
 
     if(typeof opts !== 'object') {
-      throw 'invalid opts object';
+      throw new Error('invalid opts object');
     }
 
     if(opts.data === null || opts.data === undefined) {
-      throw 'you must specify data to POST';
+      throw new Error('you must specify data to POST');
     }
 
     path = '/' + currDatabase;
 
     if(opts.url) {
       if(typeof opts.url !== 'string') {
-        throw 'Invalid url type (must be a string).';
+        throw new Error('Invalid url type (must be a string).');
       }
 
       if(opts.url.substr(0, 1) !== '/') {
@@ -68,16 +68,16 @@ publicThat = {
 
   setDatabase: function(db, createIfNotFound, createCallback) {
     if(typeof db !== 'string' || db.length <= 0) {
-      throw 'invalid database name';
+      throw new Error('invalid database name');
     }
 
     if(createCallback) {
       if(!createIfNotFound) {
-        throw 'Provided a callback but told not to check if the database exists.';
+        throw new Error('Provided a callback but told not to check if the database exists.');
       }
 
       if(typeof createCallback !== 'function') {
-        throw 'Invalid callback type.';
+        throw new Error('Invalid callback type.');
       }
 
       procPacket('GET', '/' + db, null, null, function(resp) {
@@ -116,7 +116,7 @@ publicThat = {
     throwIfNoCurrDB();
 
     if(typeof callback !== 'function') {
-      throw 'Invalid callback.';
+      throw new Error('Invalid callback.');
     }
 
     procPacket('GET', '/_stats', null, null, callback);
@@ -126,14 +126,14 @@ publicThat = {
     var url = '/_uuids';
 
     if(typeof opts !== 'object') {
-      throw 'Missing required opts.';
+      throw new Error('Missing required opts.');
     }
 
     if(typeof opts.count === 'number') {
       url += '?count=' + opts.count;
     }
     else if(typeof opts.count !== 'undefined') {
-      throw 'Invalid count type';
+      throw new Error('Invalid count type');
     }
 
     procPacket('GET', url, null, null, opts.callback);
@@ -141,40 +141,40 @@ publicThat = {
 
   put: function(opts) {
     if(typeof opts !== 'object') {
-      throw 'Missing required opts.';
+      throw new Error('Missing required opts.');
     }
 
     throwIfNoCurrDB();
 
     if(opts.callback && typeof opts.callback !== 'function') {
-      throw 'Invalid callback';
+      throw new Error('Invalid callback');
     }
 
     if(!opts.id) {
-      throw 'Must specify an id.';
+      throw new Error('Must specify an id.');
     }
 
     if(typeof opts.id !== 'string') {
-      throw 'Invalid id type (must be a string).';
+      throw new Error('Invalid id type (must be a string).');
     }
 
     if(!opts.data) {
-      throw 'Invalid data: must specify data (a document) to PUT.';
+      throw new Error('Invalid data: must specify data (a document) to PUT.');
     }
     else {
       if(!opts.data._id) {
-        throw 'No _id specified in the data.';
+        throw new Error('No _id specified in the data.');
       }
 
       if(typeof opts.data._id !== 'string') {
-        throw 'Invalid _id specific (must be a string).';
+        throw new Error('Invalid _id specific (must be a string).');
       }
 
       if(typeof opts.data === 'object' || isArray(opts.data)) {
         opts.data = JSON.stringify(opts.data);
       }
       else if(typeof opts.data !== 'string') {
-        throw 'Invalid data: must be a string of JSON or an object or array to be encoded as JSON.';
+        throw new Error('Invalid data: must be a string of JSON or an object or array to be encoded as JSON.');
       }
     }
 
@@ -191,15 +191,15 @@ publicThat = {
     throwIfNoCurrDB();
 
     if(!id || typeof id !== 'string') {
-      throw 'Invalid id';
+      throw new Error('Invalid id');
     }
 
     if(!rev || typeof rev !== 'string') {
-      throw 'Invalid rev';
+      throw new Error('Invalid rev');
     }
 
     if(callback && typeof callback !== 'function') {
-      throw 'Invalid callback type';
+      throw new Error('Invalid callback type');
     }
 
     procPacket(
@@ -215,13 +215,13 @@ publicThat = {
 
   head: function(opts) {
     if(typeof opts !== 'object') {
-      throw 'Missing required opts.';
+      throw new Error('Missing required opts.');
     }
 
     throwIfNoCurrDB();
 
     if(typeof opts.url !== 'string' || !opts.url) {
-      throw 'Invalid URL provided';
+      throw new Error('Invalid URL provided');
     }
 
     if(opts.url.substr(0, 1) !== '/') {
@@ -229,7 +229,7 @@ publicThat = {
     }
 
     if(opts.callback && typeof opts.callback !== 'function') {
-      throw 'Invalid callback type';
+      throw new Error('Invalid callback type');
     }
 
     procPacket(
@@ -245,7 +245,7 @@ publicThat = {
 
   getSession: function(callback) {
     if(callback && typeof callback !== 'function') {
-      throw 'Invalid callback type';
+      throw new Error('Invalid callback type');
     }
 
     procPacket('GET', '/_session', null, null, callback);
@@ -255,17 +255,17 @@ publicThat = {
     var data = {};
 
     if(typeof opts !== 'object') {
-      throw 'Missing required opts.';
+      throw new Error('Missing required opts.');
     }
 
     throwIfNoCurrDB();
 
     if(!opts.docs || !isArray(opts.docs)) {
-      throw 'Invalid docs provided.';
+      throw new Error('Invalid docs provided.');
     }
 
     if(opts.callback && typeof opts.callback !== 'function') {
-      throw 'Invalid callback type';
+      throw new Error('Invalid callback type');
     }
 
     if(opts.allOrNothing) {
@@ -287,7 +287,7 @@ publicThat = {
     var url;
 
     if(typeof opts !== 'object') {
-      throw 'Missing required opts.';
+      throw new Error('Missing required opts.');
     }
 
     throwIfNoCurrDB();
@@ -296,14 +296,14 @@ publicThat = {
 
     if(opts.viewName) {
       if(typeof opts.viewName !== 'string') {
-        throw 'Invalid viewName provided.';
+        throw new Error('Invalid viewName provided.');
       }
 
       url += '/' + opts.viewName;
     }
 
     if(opts.callback && typeof opts.callback !== 'function') {
-      throw 'Invalid callback type.';
+      throw new Error('Invalid callback type.');
     }
 
     procPacket('POST', url, null, null, opts.callback);
@@ -311,29 +311,29 @@ publicThat = {
 
   copy: function(opts) {
     if(typeof opts !== 'object') {
-      throw 'Missing required opts.';
+      throw new Error('Missing required opts.');
     }
 
     throwIfNoCurrDB();
 
     if(!opts.srcID || typeof opts.srcID !== 'string') {
-      throw 'Invalid srcID.';
+      throw new Error('Invalid srcID.');
     }
 
     if(!opts.dstID || typeof opts.dstID !== 'string') {
-      throw 'Invalid dstID.';
+      throw new Error('Invalid dstID.');
     }
 
     if(opts.dstRev) {
       if(typeof opts.dstRev !== 'string') {
-        throw 'Invalid dstRev.';
+        throw new Error('Invalid dstRev.');
       }
 
       opts.dstID += '?rev=' + opts.dstRev;
     }
 
     if(opts.callback && typeof opts.callback !== 'function') {
-      throw 'Invalid callback type.';
+      throw new Error('Invalid callback type.');
     }
 
     procPacket(
@@ -353,11 +353,11 @@ publicThat = {
 
   createDatabase: function(name, callback) {
     if(!name || typeof name !== 'string') {
-      throw 'Invalid database name.';
+      throw new Error('Invalid database name.');
     }
 
     if(callback && typeof callback !== 'function') {
-      throw 'Invalid callback type.';
+      throw new Error('Invalid callback type.');
     }
 
     procPacket('PUT', '/' + name, null, null, callback);
@@ -365,11 +365,11 @@ publicThat = {
 
   deleteDatabase: function(name, callback) {
     if(!name || typeof name !== 'string') {
-      throw 'Invalid database name.';
+      throw new Error('Invalid database name.');
     }
 
     if(callback && typeof callback !== 'function') {
-      throw 'Invalid callback type.';
+      throw new Error('Invalid callback type.');
     }
 
     procPacket('DELETE', '/' + name, null, null, callback);
@@ -381,27 +381,27 @@ publicThat = {
     throwIfNoCurrDB();
 
     if(!opts.name || typeof opts.name !== 'string') {
-      throw 'Invalid attachment name.';
+      throw new Error('Invalid attachment name.');
     }
 
     if(!opts.data || typeof opts.data !== 'string') {
-      throw 'Invalid attachment data - remember to serialize it to a string!';
+      throw new Error('Invalid attachment data - remember to serialize it to a string!');
     }
 
     if(!opts.contentType || typeof opts.contentType !== 'string') {
-      throw 'Invalid contentType.';
+      throw new Error('Invalid contentType.');
     }
 
     if(!opts.docID || typeof opts.docID !== 'string') {
-      throw 'Invalid docID.';
+      throw new Error('Invalid docID.');
     }
 
     if(opts.docRev && typeof opts.docRev !== 'string') {
-      throw 'Invalid attachment docRev.';
+      throw new Error('Invalid attachment docRev.');
     }
 
     if(opts.callback && typeof opts.callback !== 'function') {
-      throw 'Invalid callback type.';
+      throw new Error('Invalid callback type.');
     }
 
     url = '/' + currDatabase + '/' + opts.docID + '/' + opts.name;
@@ -421,11 +421,11 @@ publicThat = {
 
   setCookie: function(key, value) {
     if(!key || typeof key !== 'string') {
-      throw 'Invalid cookie key.';
+      throw new Error('Invalid cookie key.');
     }
 
     if(value !== null && typeof value !== 'string') {
-      throw 'Invalid non-string and non-null cookie value.';
+      throw new Error('Invalid non-string and non-null cookie value.');
     }
 
     if(value === null) {
@@ -440,7 +440,7 @@ publicThat = {
 
   getCookie: function(key) {
     if(!key || typeof key !== 'string') {
-      throw 'Invalid cookie key.';
+      throw new Error('Invalid cookie key.');
     }
 
     return globalCookies[key];
@@ -450,32 +450,32 @@ publicThat = {
     var data = {};
 
     if(typeof opts !== 'object') {
-      throw 'Invalid parameter.';
+      throw new Error('Invalid parameter.');
     }
 
     if(!opts.source || typeof opts.source !== 'string') {
-      throw 'Invalid source.';
+      throw new Error('Invalid source.');
     }
 
     if(!opts.target || typeof opts.target !== 'string') {
-      throw 'Invalid target';
+      throw new Error('Invalid target');
     }
 
     if(opts.filter && typeof opts.filter !== 'string') {
-      throw 'Invalid filter.';
+      throw new Error('Invalid filter.');
     }
 
     if(opts.callback && typeof opts.callback !== 'function') {
-      throw 'Invalid callback type.';
+      throw new Error('Invalid callback type.');
     }
 
     if(opts.filterQueryParams) {
       if(typeof opts.filterQueryParams !== 'object') {
-        throw 'Invalid filterQueryParams.';
+        throw new Error('Invalid filterQueryParams.');
       }
 
       if(!opts.filter) {
-        throw 'Provided filterQueryParams but no filter.';
+        throw new Error('Provided filterQueryParams but no filter.');
       }
     }
 
@@ -506,7 +506,7 @@ publicThat = {
     var qry = [];
 
     if(typeof opts !== 'object') {
-      throw 'Invalid parameter.';
+      throw new Error('Invalid parameter.');
     }
 
     if(opts.includeDocs) {
@@ -515,7 +515,7 @@ publicThat = {
 
     if(opts.limit) {
       if(typeof opts.limit !== 'number') {
-        throw 'Invalid limit.';
+        throw new Error('Invalid limit.');
       }
 
       qry.push('limit=' + opts.limit);
@@ -523,7 +523,7 @@ publicThat = {
 
     if(opts.startKey) {
       if(typeof opts.startKey !== 'string') {
-        throw 'Invalid startKey.';
+        throw new Error('Invalid startKey.');
       }
 
       qry.push('startkey=' + encodeURIComponent(opts.startKey));
@@ -531,7 +531,7 @@ publicThat = {
 
     if(opts.endKey) {
       if(typeof opts.endKey !== 'string') {
-        throw 'Invalid endKey.';
+        throw new Error('Invalid endKey.');
       }
 
       qry.push('endkey=' + encodeURIComponent(opts.endKey));
@@ -547,7 +547,7 @@ publicThat = {
 
     if(opts.keys) {
       if(!isArray(opts.keys)) {
-        throw 'Invalid keys (not an array).';
+        throw new Error('Invalid keys (not an array).');
       }
 
       procPacket('POST', url, { keys: opts.keys }, null, opts.callback);
@@ -558,7 +558,7 @@ publicThat = {
 
   setPathPrefix: function(pre) {
     if(pre !== undefined && pre !== null && typeof pre !== 'string') {
-      throw 'Invalid path prefix.';
+      throw new Error('Invalid path prefix.');
     }
 
     //no trailing slash
@@ -573,23 +573,23 @@ publicThat = {
 
   login: function(opts) {
     if(typeof opts !== 'object') {
-      throw 'Invalid options object.';
+      throw new Error('Invalid options object.');
     }
 
     if(opts.callback && typeof opts.callback !== 'function') {
-      throw 'Invalid callback.';
+      throw new Error('Invalid callback.');
     }
 
     if(opts.user && typeof opts.user !== 'string') {
-      throw 'Invalid user.';
+      throw new Error('Invalid user.');
     }
 
     if(opts.pass && typeof opts.pass !== 'string') {
-      throw 'Invalid pass.';
+      throw new Error('Invalid pass.');
     }
 
     if(opts.type && typeof opts.type !== 'string') {
-      throw 'Invalid type of auth - use AUTH_BASIC or AUTH_COOKIE.';
+      throw new Error('Invalid type of auth - use AUTH_BASIC or AUTH_COOKIE.');
     }
 
     if(!opts.type || opts.type === exports.AUTH_BASIC) {
@@ -634,7 +634,7 @@ publicThat = {
       }
     }
     else {
-      throw 'Unknown auth type.';
+      throw new Error('Unknown auth type.');
     }
   },
 
@@ -643,7 +643,7 @@ publicThat = {
       observers[flag].push(callback);
     }
     else {
-      throw 'Invalid event name.';
+      throw new Error('Invalid event name.');
     }
 
     return publicThat;

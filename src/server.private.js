@@ -45,7 +45,7 @@ var observers = {
 // Utility function to remove a bunch of dupe code.
 function throwIfNoCurrDB() {
   if(!currDatabase) {
-    throw 'Must setDatabase() first.';
+    throw new Error('Must setDatabase() first.');
   }
 }
 
@@ -61,7 +61,7 @@ function toBase64(str) {
     return btoa(str);
   }
 
-  throw 'No base64 encoder available.';
+  throw new Error('No base64 encoder available.');
 }
 
 // Common interface for XHR and http[s] modules to send responses to.
@@ -151,7 +151,7 @@ function procPacket(method, path, data, headers, callback) {
   }
   else if(currAuth.type === exports.AUTH_COOKIE) {
     if(http && typeof publicThat.getCookie('AuthSession') !== 'string') {
-      throw 'Trying to use cookie auth, but we never got an AuthSession cookie from the server.';
+      throw new Error('Trying to use cookie auth, but we never got an AuthSession cookie from the server.');
     }
 
     headers['X-CouchDB-WWW-Authenticate'] = 'Cookie';
@@ -238,14 +238,14 @@ function procPacket(method, path, data, headers, callback) {
     xmlHTTP.send(data || null);
   }
   else {
-    throw 'coder fail';
+    throw new Error('coder fail');
   }
 }
 
 // Adds a query param to a URL.
 function setURLParameter(url, key, value) {
   if(typeof url !== 'string') {
-    throw 'URLs must be a string';
+    throw new Error('URLs must be a string');
   }
 
   if(urlUtils) {
@@ -284,5 +284,5 @@ else if(typeof require === 'function') {
   urlUtils = require('url');
 }
 else {
-  throw 'whoops';
+  throw new Error('whoops');
 }
