@@ -45,6 +45,9 @@ all: sag.js
 sag.js:
 	cat ${SRC_FILES} > sag.js
 
+submodules:
+	git submodule update --init
+
 hint: sag.js
 	@@for file in ${JSHINT_TARGETS}; do \
 		echo "Hinting: $$file"; \
@@ -52,7 +55,7 @@ hint: sag.js
 		echo "--------------------------"; \
 	done
 
-check: sag.js
+check: submodules sag.js
 	@@cd ${NODE_TESTS_DIR} && \
 		${NODE} ./run.js && \
 		cd - > /dev/null
