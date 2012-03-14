@@ -636,6 +636,17 @@ publicThat = {
     else {
       throw 'Unknown auth type.';
     }
+  },
+
+  on: function(flag, callback) {
+    if(observers[flag]) {
+      observers[flag].push(callback);
+    }
+    else {
+      throw 'Invalid event name.';
+    }
+
+    return publicThat;
   }
 };
 

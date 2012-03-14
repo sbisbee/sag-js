@@ -528,6 +528,23 @@ asyncTest('setStaleDefault() with view', function() {
   });
 });
 
+asyncTest('on()', function() {
+  expect(2);
+
+  makeCouch(true, function(couch) {
+    couch.on('error', function(resp) {
+      equal((resp._HTTP.status >= 400), true, 'Expected an error.');
+    });
+
+    couch.get({
+      url: '/thisreallydoesnotexist',
+      callback: function(resp, succ) {
+        equal(succ, false, 'Expected an error.');
+      }
+    });
+  });
+});
+
 asyncTest('deleteDatabase()', function() {
   expect(2);
 

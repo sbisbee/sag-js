@@ -26,6 +26,22 @@ var pathPrefix = '';
 // Stores the auth info: user, pass, type
 var currAuth = {};
 
+// Used by sag.on()
+var observers = {
+  _notify: function(k, v) {
+    var i;
+
+    if(this[k]) {
+      for(i in this[k]) {
+        if(this[k].hasOwnProperty(i) && typeof this[k][i] === 'function') {
+          this[k][i](v);
+        }
+      }
+    }
+  },
+  error: []
+};
+
 // Utility function to remove a bunch of dupe code.
 function throwIfNoCurrDB() {
   if(!currDatabase) {
@@ -81,6 +97,10 @@ function onResponse(httpCode, headers, body, callback) {
         pieces = null;
       }
     }
+  }
+
+  if(resp._HTTP.status >= 400) {
+    observers._notify('error', resp);
   }
 
   if(typeof callback === 'function') {
