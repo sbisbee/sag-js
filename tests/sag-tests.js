@@ -540,6 +540,8 @@ asyncTest('on()', function() {
       url: '/thisreallydoesnotexist',
       callback: function(resp, succ) {
         equal(succ, false, 'Expected an error.');
+
+        start();
       }
     });
   });
