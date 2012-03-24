@@ -559,3 +559,14 @@ asyncTest('deleteDatabase()', function() {
     });
   });
 });
+
+test('toString()', function() {
+  var couch = sag.server('google.com', '123');
+  couch.login({ user: 'u', pass: 'p' });
+  couch.setDatabase('howdy');
+
+  expect(2);
+
+  equal(couch.toString(), 'http://u:p@google.com:123/howdy', 'Using toString');
+  equal(couch + '', 'http://u:p@google.com:123/howdy', 'Auto-causing toString');
+});

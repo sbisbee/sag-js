@@ -647,6 +647,26 @@ publicThat = {
     }
 
     return publicThat;
+  },
+
+  toString: function() {
+    var str = 'http://';
+
+    if(currAuth && currAuth.user) {
+      str += currAuth.user + ':' + (currAuth.pass || '') + '@';
+    }
+
+    str += host;
+
+    if(port) {
+      str += ':' + port;
+    }
+
+    if(currDatabase) {
+      str += '/' + currDatabase;
+    }
+
+    return str;
   }
 };
 
