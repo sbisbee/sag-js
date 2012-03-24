@@ -1,6 +1,20 @@
 Sag-JS Changes
 ==============
 
+Version 0.3.0
+-------------
+
+New Features
+
+  * You can now initialize your server connection with a URL by using
+    sag.serverFromURL(). For example,
+    sag.serverFromURL('http://user:pass@user.cloudant.com/db') would be the
+    same as using the server() constructor, then login(), and then
+    setDatabase().
+
+  * Implemented the toString() function on the server() API to return a full
+    URL. For example, it might return 'http://user:pass@user.cloudant.com/db'.
+
 Version 0.2.0
 -------------
 
