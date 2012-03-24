@@ -15,6 +15,7 @@ TESTS_DIR := ./tests
 
 # Source files in concat order
 SRC_FILES := ${SRC_DIR}/core.header.js\
+              ${SRC_DIR}/utils.js\
               ${SRC_DIR}/server.private.js\
               ${SRC_DIR}/server.public.js\
               ${SRC_DIR}/core.footer.js
@@ -42,7 +43,9 @@ UGLIFY_OPTS := --unsafe
 
 all: sag.js
 
-sag.js:
+${SRC_FILES}:
+
+sag.js: ${SRC_FILES}
 	cat ${SRC_FILES} > sag.js
 
 submodules:

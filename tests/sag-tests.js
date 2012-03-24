@@ -559,3 +559,35 @@ asyncTest('deleteDatabase()', function() {
     });
   });
 });
+
+test('toString()', function() {
+  var couch = sag.server('google.com', '123');
+  couch.login({ user: 'u', pass: 'p' });
+  couch.setDatabase('howdy');
+
+  expect(2);
+
+  equal(couch.toString(), 'http://u:p@google.com:123/howdy', 'Using toString');
+  equal(couch + '', 'http://u:p@google.com:123/howdy', 'Auto-causing toString');
+});
+
+test('serverFromURL()', function() {
+  var regCouch;
+
+  var opts = {
+    url: 'http://admin:passwd@sbisbee.cloudant.com:5984/sag',
+    host: 'sbisbee.cloudant.com',
+    port: '5984',
+    user: 'admin',
+    pass: 'passwd',
+    db: 'sag'
+  };
+
+  expect(1);
+
+  regCouch = sag.server(opts.host, opts.port);
+  regCouch.login({ user: opts.user, pass: opts.pass });
+  regCouch.setDatabase(opts.db);
+
+  equal(sag.serverFromURL(opts.url) + '', regCouch + '', 'Check for the same Sag');
+});
