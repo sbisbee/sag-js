@@ -6,7 +6,7 @@ SHA1SUM := sha1sum
 MD5SUM := md5sum
 
 # Version we're building
-VERSION := 0.2.0
+VERSION := 0.3.0
 
 # Primary locations
 BUILD_DIR := ./build
