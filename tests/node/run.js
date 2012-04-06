@@ -43,6 +43,10 @@ fs.readFile('../browser/qunit/qunit/qunit.js', 'utf-8', function(err, data) {
       res.total,
       res.runtime
     );
+
+    if(res.failed > 0) {
+      process.exit(1);
+    }
   };
 
   //force test order - see https://github.com/jquery/qunit/issues/74
