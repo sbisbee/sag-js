@@ -554,8 +554,8 @@ test('serverFromURL()', function() {
   var regCouch;
 
   var opts = {
-    url: 'http://admin:passwd@sbisbee.cloudant.com:5984/sag',
-    host: 'sbisbee.cloudant.com',
+    url: 'http://admin:passwd@localhost:5984/sag',
+    host: 'localhost',
     port: '5984',
     user: 'admin',
     pass: 'passwd',
