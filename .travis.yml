@@ -1,0 +1,12 @@
+language: node_js
+
+node_js:
+  - 0.4
+  - 0.6
+  - 0.7
+
+before_script:
+  - curl -X PUT localhost:5984/_config/admins/admin -d '"passwd"'
+  - curl localhost:5984
+
+script: make check
