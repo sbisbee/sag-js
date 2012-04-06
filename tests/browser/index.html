@@ -8,6 +8,27 @@
 
     <!-- global utils -->
     <script>
+    function makeCouch(setDB, loginCallback) {
+      var couch = sag.server('localhost', '80');
+
+      couch.setPathPrefix('/db');
+
+      if(loginCallback) {
+        couch.login({
+          user: 'admin',
+          pass: 'passwd',
+          type: sag.AUTH_COOKIE,
+          callback: loginCallback
+        });
+      }
+
+      if(setDB) {
+        couch.setDatabase(dbName);
+      }
+
+      return couch;
+    }
+
     //force test order - see https://github.com/jquery/qunit/issues/74
     QUnit.config.reorder = false;
     </script>

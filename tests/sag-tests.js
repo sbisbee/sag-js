@@ -5,27 +5,6 @@ var isArray = Array.isArray || function(arg) {
   return Object.prototype.toString.call(arg) == '[object Array]';
 };
 
-function makeCouch(setDB, loginCallback) {
-  var couch = sag.server('localhost', '80');
-
-  couch.setPathPrefix('/db');
-
-  if(loginCallback) {
-    couch.login({
-      user: 'admin',
-      pass: 'passwd',
-      type: sag.AUTH_COOKIE,
-      callback: loginCallback
-    });
-  }
-
-  if(setDB) {
-    couch.setDatabase(dbName);
-  }
-
-  return couch;
-}
-
 module('Core');
 
 test('setPathPrefix()', function() {

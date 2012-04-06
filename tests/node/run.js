@@ -58,12 +58,16 @@ fs.readFile('../browser/qunit/qunit/qunit.js', 'utf-8', function(err, data) {
 
     vm.runInContext(data, context);
 
-    fs.readFile('../sag-tests.js', 'utf-8', function(err, data) {
-      if(err) {
-        throw err;
-      }
-
+    fs.readFile('./makeCouch.js', 'utf-8', function(err, data) {
       vm.runInContext(data, context);
+
+      fs.readFile('../sag-tests.js', 'utf-8', function(err, data) {
+        if(err) {
+          throw err;
+        }
+
+        vm.runInContext(data, context);
+      });
     });
   });
 });
