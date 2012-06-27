@@ -1,4 +1,4 @@
-(function(exports) {
+(function(exports, scope) {
   var isArray = Array.isArray || function(arg) {
     return Object.prototype.toString.call(arg) == '[object Array]';
   };

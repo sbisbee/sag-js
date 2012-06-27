@@ -1,1 +1,1 @@
-})((typeof exports === 'object') ? exports : (this.sag = {}));
+})((typeof exports === 'object') ? exports : (this.sag = {}), this);

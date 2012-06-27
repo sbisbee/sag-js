@@ -5,10 +5,12 @@ var publicThat;
 
 /*
  * http is the node module whereas xmlHTTP is the XHR object. Also a good
- * way to detect whether you're in node or browser land.
+ * way to detect whether you're in node or browser land. Then there's jQuery
+ * (jqAjax), which is also in the browser.
  */
 var http;
 var xmlHTTP;
+var jqAjax;
 
 // If in node land this is the url module.
 var urlUtils;
@@ -110,6 +112,7 @@ function onResponse(httpCode, headers, body, callback) {
 
 // The common interface for the API functions to cause a net call.
 function procPacket(method, path, data, headers, callback) {
+  var fullURL;
   var cookieStr = '';
   var i;
   var req;
@@ -141,9 +144,12 @@ function procPacket(method, path, data, headers, callback) {
     headers.Cookie = ((headers.Cookie) ? headers.Cookie : '') + cookieStr;
   }
 
+  //set up the fullURL (what we're querying in browsers)
   if(pathPrefix) {
     path = pathPrefix + path;
   }
+
+  fullURL = 'http://' + host + ':' + port + path; 
 
   //authentication
   if(currAuth.type === exports.AUTH_BASIC && (currAuth.user || currAuth.pass)) {
@@ -198,6 +204,72 @@ function procPacket(method, path, data, headers, callback) {
 
     req.end();
   }
+  else if(jqAjax) {
+    var promise = jqAjax({
+      global: false,
+      url: fullURL,
+      dataType: 'text',
+      type: method,
+      data: data || null,
+      beforeSend: function(jqXHR) {
+        var i;
+
+        for(i in headers) {
+          if(headers.hasOwnProperty(i)) {
+            jqXHR.setRequestHeader(i, headers[i]);
+          }
+        }
+
+        return true;
+      }
+    });
+
+    promise.done(function(resp) {
+      var rawHeaders = promise.getAllResponseHeaders().split('\n');
+      var headers = {};
+      var i;
+
+      for(i in rawHeaders) {
+        if(rawHeaders.hasOwnProperty(i)) {
+          rawHeaders[i] = rawHeaders[i].split(': ');
+
+          if(rawHeaders[i][1]) {
+            headers[rawHeaders[i][0].toLowerCase()] = rawHeaders[i][1].trim();
+          }
+        }
+      }
+
+      onResponse(
+        promise.status,
+        headers,
+        (method === 'HEAD') ? null : resp,
+        callback
+      );
+    });
+
+    promise.fail(function(jqXHR) {
+      var rawHeaders = promise.getAllResponseHeaders().split('\n');
+      var headers = {};
+      var i;
+
+      for(i in rawHeaders) {
+        if(rawHeaders.hasOwnProperty(i)) {
+          rawHeaders[i] = rawHeaders[i].split(': ');
+
+          if(rawHeaders[i][1]) {
+            headers[rawHeaders[i][0].toLowerCase()] = rawHeaders[i][1].trim();
+          }
+        }
+      }
+
+      onResponse(
+        jqXHR.status,
+        headers,
+        (method === 'HEAD') ? null : jqXHR.responseText,
+        callback
+      );
+    });
+  }
   else if(xmlHTTP) {
     // Browser xhr magik
     xmlHTTP.onreadystatechange = function() {
@@ -227,7 +299,7 @@ function procPacket(method, path, data, headers, callback) {
       }
     };
 
-    xmlHTTP.open(method, 'http://' + host + ':' + port + path);
+    xmlHTTP.open(method, fullURL);
 
     for(i in headers) {
       if(headers.hasOwnProperty(i)) {
@@ -273,7 +345,10 @@ host = host || 'localhost';
 port = port || '5984';
 
 //environment and http engine detection
-if(typeof XMLHttpRequest === 'function') {
+if(typeof scope.jQuery === 'function' && typeof scope.jQuery.ajax === 'function') {
+  jqAjax = scope.jQuery.ajax;
+}
+else if(typeof XMLHttpRequest === 'function') {
   xmlHTTP = new XMLHttpRequest();
 }
 else if(typeof ActiveXObject === 'function') {

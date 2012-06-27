@@ -50,6 +50,7 @@ asyncTest('createDatabase()', function() {
 
   makeCouch(false, function(couch) {
     couch.createDatabase(dbName, function(resp) {
+console.log(resp);
       equal(resp.body.ok, true, 'JSON body/parsing check');
       equal(resp._HTTP.status, '201', 'Proper HTTP code');
 
