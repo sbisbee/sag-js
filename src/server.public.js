@@ -521,6 +521,14 @@ publicThat = {
       qry.push('limit=' + opts.limit);
     }
 
+    if(opts.skip) {
+      if(typeof opts.skip !== 'number') {
+        throw new Error('Invalid skip.');
+      }
+
+      qry.push('skip=' + opts.skip);
+    }
+
     if(opts.startKey) {
       if(typeof opts.startKey !== 'string') {
         throw new Error('Invalid startKey.');
@@ -535,6 +543,14 @@ publicThat = {
       }
 
       qry.push('endkey=' + encodeURIComponent(opts.endKey));
+    }
+
+    if(opts.key) {
+      if(typeof opts.key !== 'string') {
+        throw new Error('Invalid endKey.');
+      }
+
+      qry.push('key=' + encodeURIComponent(opts.key));
     }
 
     if(opts.descending) {
