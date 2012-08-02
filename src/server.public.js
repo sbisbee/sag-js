@@ -666,7 +666,7 @@ publicThat = {
   },
 
   toString: function() {
-    var str = 'http://';
+    var str = protocol + "://";
 
     if(currAuth && currAuth.user) {
       str += currAuth.user + ':' + (currAuth.pass || '') + '@';
@@ -676,6 +676,10 @@ publicThat = {
 
     if(port) {
       str += ':' + port;
+    }
+
+    if(pathPrefix) {
+      str += '/' + pathPrefix
     }
 
     if(currDatabase) {
