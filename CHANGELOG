@@ -4,6 +4,11 @@ Sag-JS Changes
 Version 0.4.0
 -------------
 
+New Features
+
+  * Adding 'skip' and 'key' parameters to the getAllDocs() options. Thanks to
+    Simon Metson for the patch (github/drsm79).
+
 Fixed Bugs
 
   * Fixed serverFromURL() in Node v0.4.x.
