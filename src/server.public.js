@@ -679,7 +679,7 @@ publicThat = {
     }
 
     if(pathPrefix) {
-      str += '/' + pathPrefix
+      str += '/' + pathPrefix;
     }
 
     if(currDatabase) {

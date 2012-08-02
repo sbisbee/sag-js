@@ -145,6 +145,8 @@ function procPacket(method, path, data, headers, callback) {
     path = pathPrefix + path;
   }
 
+  fullURL = getURL() + path;
+
   //authentication
   if(currAuth.type === exports.AUTH_BASIC && (currAuth.user || currAuth.pass)) {
     headers.Authorization = 'Basic ' + toBase64(currAuth.user + ':' + currAuth.pass);
@@ -228,7 +230,7 @@ function procPacket(method, path, data, headers, callback) {
     };
 
 
-    xmlHTTP.open(method, getURL() + path);
+    xmlHTTP.open(method, fullURL);
 
     for(i in headers) {
       if(headers.hasOwnProperty(i)) {
@@ -247,9 +249,9 @@ function procPacket(method, path, data, headers, callback) {
 function getURL(){
   var url = '';
   if (port){
-    url = protocol + '://' + host + ':' + port
+    url = protocol + '://' + host + ':' + port;
   } else {
-    url = protocol + '://' + host
+    url = protocol + '://' + host;
   }
   return url;
 }
