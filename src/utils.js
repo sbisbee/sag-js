@@ -42,3 +42,43 @@ exports.serverFromURL = function(url) {
 
   return sagRes;
 };
+
+/*
+ * Pass in the rows from a view function (ie., response.body.rows) that uses
+ * complex keys and a tree of objects will be returned. The end values are
+ * always in an array, even if there is only one value.
+ *
+ * For example:
+ *
+ * ``
+ * var rows = [
+ *   { key: [ "a", 0 ], value: "first" },
+ *   { key: [ "a", 1 ], value: "second" },
+ *   { key: [ "b", 0 ], value: "third" }
+ * ];
+ *
+ * console.log(sag.rowsToTree(rows));
+ * ''
+ *
+ * Would give you this:
+ * { "a": { "0": [ "first" ], "1": [ "second" ] }, "b": { "0": [ "third" ] } }
+ */
+exports.rowsToTree = function(rows) {
+  var tree = {};
+
+  rows.forEach(function(row) {
+    var currNode = tree;
+
+    row.key.forEach(function(currKey, i, keys) {
+      if(!currNode[currKey]) {
+        currNode[currKey] = (keys[i + 1] !== undefined) ? {} : [];
+      }
+
+      currNode = currNode[currKey];
+    });
+
+    currNode.push(row.value);
+  });
+
+  return tree;
+};
