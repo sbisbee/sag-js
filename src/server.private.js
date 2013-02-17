@@ -1,4 +1,4 @@
-exports.server = function(host, port, user, pass) {
+exports.server = function(host, port, user, pass, protocol) {
 
 // The API that server returns.
 var publicThat;
@@ -145,6 +145,8 @@ function procPacket(method, path, data, headers, callback) {
     path = pathPrefix + path;
   }
 
+  fullURL = getURL() + path;
+
   //authentication
   if(currAuth.type === exports.AUTH_BASIC && (currAuth.user || currAuth.pass)) {
     headers.Authorization = 'Basic ' + toBase64(currAuth.user + ':' + currAuth.pass);
@@ -227,7 +229,8 @@ function procPacket(method, path, data, headers, callback) {
       }
     };
 
-    xmlHTTP.open(method, 'http://' + host + ':' + port + path);
+
+    xmlHTTP.open(method, fullURL);
 
     for(i in headers) {
       if(headers.hasOwnProperty(i)) {
@@ -240,6 +243,17 @@ function procPacket(method, path, data, headers, callback) {
   else {
     throw new Error('coder fail');
   }
+}
+
+// Create the base URL for the server
+function getURL(){
+  var url = '';
+  if (port){
+    url = protocol + '://' + host + ':' + port;
+  } else {
+    url = protocol + '://' + host;
+  }
+  return url;
 }
 
 // Adds a query param to a URL.
@@ -270,7 +284,8 @@ function setURLParameter(url, key, value) {
 
 //defaults
 host = host || 'localhost';
-port = port || '5984';
+//port = port || '5984';
+protocol = protocol || 'http';
 
 //environment and http engine detection
 if(typeof XMLHttpRequest === 'function') {
