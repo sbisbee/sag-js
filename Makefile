@@ -20,17 +20,19 @@ SRC_FILES := ${SRC_DIR}/core.header.js\
               ${SRC_DIR}/server.public.js\
               ${SRC_DIR}/core.footer.js
 
+TARGET_FILE := sag.js
+
 # Dist locations
 DIST_DIR := sag-js-${VERSION}
 DIST_FILE := ${DIST_DIR}.tar.gz
 DIST_FILE_SIG := ${DIST_FILE}.sig
 DIST_FILE_SHA1 := ${DIST_FILE}.sha
 DIST_FILE_MD5 := ${DIST_FILE}.md5
-DIST_FILES := sag.js LICENSE NOTICE README CHANGELOG
+DIST_FILES := ${TARGET_FILE} LICENSE NOTICE README CHANGELOG
 
 # jshint
 JSHINT_FILE := ${BUILD_DIR}/jshint.js
-JSHINT_TARGETS := ./sag.js
+JSHINT_TARGETS := ./${TARGET_FILE}
 
 # post processing file
 POSTPROC := ${BUILD_DIR}/postproc.js
@@ -41,33 +43,33 @@ NODE_TESTS_DIR := ${TESTS_DIR}/node
 # uglify
 UGLIFY_OPTS := --unsafe
 
-all: sag.js
+all: ${TARGET_FILE}
 
 ${SRC_FILES}:
 
-sag.js: ${SRC_FILES}
-	cat ${SRC_FILES} > sag.js
+${TARGET_FILE}: ${SRC_FILES}
+	cat ${SRC_FILES} > ${TARGET_FILE}
 
 submodules:
 	git submodule update --init
 
-hint: sag.js
+hint: ${TARGET_FILE}
 	@@for file in ${JSHINT_TARGETS}; do \
 		echo "Hinting: $$file"; \
 		${NODE} ${JSHINT_FILE} $$file; \
 		echo "--------------------------"; \
 	done
 
-check: submodules sag.js
+check: submodules ${TARGET_FILE}
 	@@cd ${NODE_TESTS_DIR} && \
 		${NODE} ./run.js && \
 		cd - > /dev/null
 
-dist: sag.js
+dist: ${TARGET_FILE}
 	mkdir ${DIST_DIR}
 	cp ${DIST_FILES} ${DIST_DIR}
 
-	mv ${DIST_DIR}/sag.js ${DIST_DIR}/sag-${VERSION}.js
+	mv ${DIST_DIR}/${TARGET_FILE} ${DIST_DIR}/sag-${VERSION}.js
 	cp package.json ${DIST_DIR}
 	sed -i -e '/"main":/s/sag\.js/sag-0.1.0.js/' -e '/"version":/s/UNRELEASED/0.1.0/' ${DIST_DIR}/package.json
 
@@ -92,4 +94,4 @@ sign: dist
 
 clean:
 	rm -rf ${DIST_DIR} ${DIST_FILE} ${DIST_FILE_SIG} \
-		${DIST_FILE_MD5} ${DIST_FILE_SHA1}
+		${DIST_FILE_MD5} ${DIST_FILE_SHA1} ${TARGET_FILE}
