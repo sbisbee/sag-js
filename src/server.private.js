@@ -167,8 +167,7 @@ function procPacket(method, path, data, headers, callback) {
         host: host,
         port: port,
         path: path,
-        headers: headers,
-        rejectUnauthorized: false
+        headers: headers
       },
       function(res) {
         var resBody;
