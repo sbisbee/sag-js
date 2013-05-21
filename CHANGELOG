@@ -9,6 +9,9 @@ New Features
   * Adding 'skip' and 'key' parameters to the getAllDocs() options. Thanks to
     Simon Metson for the patch (github/drsm79).
 
+  * You can now specify SSL when using Node. Doesn't do anything when running
+    in the browser.
+
 Fixed Bugs
 
   * Fixed serverFromURL() in Node v0.4.x.
