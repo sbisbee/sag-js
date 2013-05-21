@@ -1,4 +1,4 @@
-exports.server = function(host, port, user, pass) {
+exports.server = function(host, port, user, pass, useSSL) {
 
 // The API that server returns.
 var publicThat;
@@ -23,7 +23,7 @@ var staleDefault = false;
 var globalCookies = {};
 // User supplied path prefix.
 var pathPrefix = '';
-// Stores the auth info: user, pass, type
+// Stores the auth info: user, pass, type.
 var currAuth = {};
 
 // Used by sag.on()
@@ -167,7 +167,8 @@ function procPacket(method, path, data, headers, callback) {
         host: host,
         port: port,
         path: path,
-        headers: headers
+        headers: headers,
+        rejectUnauthorized: false
       },
       function(res) {
         var resBody;
@@ -280,7 +281,7 @@ else if(typeof ActiveXObject === 'function') {
   xmlHTTP = new ActiveXObject('Microsoft.XMLHTTP');
 }
 else if(typeof require === 'function') {
-  http = require('http');
+  http = (useSSL) ? require('https') : require('http');
   urlUtils = require('url');
 }
 else {

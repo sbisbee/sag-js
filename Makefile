@@ -62,7 +62,8 @@ hint: ${TARGET_FILE}
 
 check: submodules ${TARGET_FILE}
 	@@cd ${NODE_TESTS_DIR} && \
-		${NODE} ./run.js && \
+		${NODE} ./run.js ./makeCouch.js && \
+		${NODE} ./run.js ./makeCouch-ssl.js && \
 		cd - > /dev/null
 
 dist: ${TARGET_FILE}

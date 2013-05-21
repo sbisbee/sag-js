@@ -12,6 +12,11 @@ var initSandbox = {
 
 var context = vm.createContext(initSandbox);
 
+if(!process.argv[2]) {
+  console.log('No makeCouch.js specified');
+  process.exit(1);
+}
+
 fs.readFile('../browser/qunit/qunit/qunit.js', 'utf-8', function(err, data) {
   if(err) {
     throw err;
@@ -62,7 +67,7 @@ fs.readFile('../browser/qunit/qunit/qunit.js', 'utf-8', function(err, data) {
 
     vm.runInContext(data, context);
 
-    fs.readFile('./makeCouch.js', 'utf-8', function(err, data) {
+    fs.readFile(process.argv[2], 'utf-8', function(err, data) {
       vm.runInContext(data, context);
 
       fs.readFile('../sag-tests.js', 'utf-8', function(err, data) {
