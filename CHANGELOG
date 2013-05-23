@@ -12,6 +12,8 @@ New Features
   * You can now specify SSL when using Node. Doesn't do anything when running
     in the browser.
 
+  * Adding function to get active tasks from '/_active_tasks'.
+
 Fixed Bugs
 
   * Fixed serverFromURL() in Node v0.4.x.

@@ -501,6 +501,10 @@ publicThat = {
     procPacket('POST', '/_replicate', data, null, opts.callback);
   },
 
+  activeTasks: function(cb) {
+    procPacket('GET', '/_active_tasks', null, null, cb);
+  },
+
   getAllDocs: function(opts) {
     var url;
     var qry = [];

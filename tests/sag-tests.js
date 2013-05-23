@@ -539,6 +539,19 @@ asyncTest('deleteDatabase()', function() {
   });
 });
 
+asyncTest('activeTasks()', function() {
+  expect(2);
+
+  makeCouch(false, function(couch) {
+    couch.activeTasks(function(resp, succ) {
+      equal(resp._HTTP.status, '200', 'Proper HTTP code');
+      equal(typeof resp.body, 'object', 'Valid body');
+
+      start();
+    });
+  });
+});
+
 test('toString()', function() {
   var couch = sag.server('google.com', '123');
   couch.login({ user: 'u', pass: 'p' });
@@ -571,6 +584,7 @@ test('serverFromURL()', function() {
   equal(sag.serverFromURL(opts.url) + '', regCouch + '', 'Check for the same Sag');
 });
 
+/*
 test('rowsToTree()', function() {
   var couch = makeCouch(false);
 
@@ -596,3 +610,4 @@ test('rowsToTree()', function() {
   strictEqual(tree.b['0'][1], undefined, 'no second b value');
   strictEqual(tree.c, undefined, 'no c');
 });
+*/
