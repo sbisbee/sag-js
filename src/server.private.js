@@ -1,4 +1,4 @@
-exports.server = function(host, port, user, pass, useSSL) {
+exports.server = function(host, port, useSSL) {
 
 // The API that server returns.
 var publicThat;
