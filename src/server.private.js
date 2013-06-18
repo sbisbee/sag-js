@@ -159,7 +159,7 @@ function procPacket(method, path, data, headers, callback) {
 
   if(http) {
     // Node.JS http module
-    headers['User-Agent'] = 'Sag-JS/0.3'; //can't set this in browsers
+    headers['User-Agent'] = 'Sag-JS/0.4'; //can't set this in browsers
 
     req = http.request(
       {
