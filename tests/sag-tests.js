@@ -357,6 +357,8 @@ asyncTest('setAttachment()', function() {
     cType: 'text/ascii'
   };
 
+  expect(5);
+
   makeCouch(true, function(couch) {
     couch.get({
       url: 'one',
