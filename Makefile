@@ -1,5 +1,5 @@
 # Binaries
-NODE := node
+export NODE := node
 UGLIFY := uglifyjs
 GPG := gpg
 SHA1SUM := sha1sum
@@ -61,10 +61,7 @@ hint: ${TARGET_FILE}
 	done
 
 check: submodules ${TARGET_FILE}
-	@@cd ${NODE_TESTS_DIR} && \
-		${NODE} ./run.js ./makeCouch.js && \
-		${NODE} ./run.js ./makeCouch-ssl.js && \
-		cd - > /dev/null
+	make -C ${NODE_TESTS_DIR} check
 
 dist: ${TARGET_FILE}
 	mkdir ${DIST_DIR}
