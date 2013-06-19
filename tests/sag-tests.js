@@ -626,30 +626,4 @@ test('serverFromURL()', function() {
   equal(sag.serverFromURL(opts.url) + '', regCouch + '', 'Check for the same Sag');
 });
 
-/*
-test('rowsToTree()', function() {
-  var couch = makeCouch(false);
-
-  var rows = [
-    { key: [ 'a', 0 ], value: 'first' },
-    { key: [ 'a', 1 ], value: 'second' },
-    { key: [ 'a', 1 ], value: 'third' },
-    { key: [ 'b', 0 ], value: 'fourth' }
-  ];
-
-  var tree = sag.rowsToTree(rows);
-
-  expect(8);
-
-  strictEqual(typeof tree.a, 'object', 'Connector objects');
-  strictEqual(typeof tree.b, 'object', 'Connector objects');
-
-  strictEqual(tree.a['0'][0], rows[0].value, 'first value');
-  strictEqual(tree.a['1'][0], rows[1].value, 'second value');
-  strictEqual(tree.a['1'][1], rows[2].value, 'third value');
-  strictEqual(tree.b['0'][0], rows[3].value, 'fourth value');
-
-  strictEqual(tree.b['0'][1], undefined, 'no second b value');
-  strictEqual(tree.c, undefined, 'no c');
-});
-*/
+QUnit.start();
