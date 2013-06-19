@@ -5,6 +5,46 @@ var isArray = Array.isArray || function(arg) {
   return Object.prototype.toString.call(arg) == '[object Array]';
 };
 
+//force test order - see https://github.com/jquery/qunit/issues/74
+QUnit.config.reorder = false;
+
+//forces qunit's internal queue to run the tests in order instead of asyncly
+QUnit.config.autorun = false;
+
+QUnit.config.autostart = false;
+
+QUnit.config.requireExpects = true;
+
+QUnit.testStart = function(res) {
+  console.log('Test: %s', res.name);
+};
+
+QUnit.testDone = function(res) {
+  if(res.failed) {
+    console.log('-----');
+  }
+};
+
+QUnit.log = function(res) {
+  if(!res.result) {
+    console.log(res);
+  }
+};
+
+QUnit.done = function(res) {
+  console.log(
+    '\nPassed:\t\t%d\nFailed:\t\t%d\nTotal Run:\t%d\nSeconds:\t%d\n',
+    res.passed,
+    res.failed,
+    res.total,
+    res.runtime
+  );
+
+  if(typeof process === 'object' && typeof process.exit === 'function' && res.failed > 0) {
+    process.exit(1);
+  }
+};
+
 module('Core');
 
 test('setPathPrefix()', function() {

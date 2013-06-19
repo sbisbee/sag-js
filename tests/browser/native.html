@@ -8,7 +8,7 @@
 
     <!-- global utils -->
     <script>
-    function makeCouch(setDB, loginCallback) {
+    var makeCouch = function(setDB, loginCallback) {
       var couch = sag.server('localhost', '80');
 
       couch.setPathPrefix('/db');
@@ -27,10 +27,7 @@
       }
 
       return couch;
-    }
-
-    //force test order - see https://github.com/jquery/qunit/issues/74
-    QUnit.config.reorder = false;
+    };
     </script>
 
     <!-- the stuff that we are testing -->
