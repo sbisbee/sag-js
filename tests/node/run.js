@@ -16,6 +16,9 @@ if(!process.argv[2]) {
   console.log('No makeCouch.js specified');
   process.exit(1);
 }
+else {
+  console.log('Using ' + process.argv[2]);
+}
 
 fs.readFile('../browser/qunit/qunit/qunit.js', 'utf-8', function(err, data) {
   if(err) {
