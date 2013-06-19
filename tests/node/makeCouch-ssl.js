@@ -1,5 +1,5 @@
 function makeCouch(setDB, loginCallback) {
-  var couch = sag.server('localhost', '6984', null, null, true);
+  var couch = sag.server('localhost', '6984', true);
 
   var loginOpts = {
     user: 'admin',
