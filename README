@@ -31,7 +31,7 @@ specific additions.
 Each release is tested with an automated testing suite against these
 combinations of software:
 
-  Apache CouchDB: 1.1.x, 1.2.x
+  Apache CouchDB: 1.1.x, 1.2.x, 1.3.x
 
   Node.JS: 0.8.x and 0.10.x (stable releases only)
 
