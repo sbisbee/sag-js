@@ -1,6 +1,6 @@
 # Binaries
 export NODE := node
-UGLIFY := uglifyjs
+UGLIFY := ./node_modules/.bin/uglifyjs
 GPG := gpg
 SHA1SUM := sha1sum
 MD5SUM := md5sum
@@ -50,6 +50,9 @@ ${SRC_FILES}:
 ${TARGET_FILE}: ${SRC_FILES}
 	cat ${SRC_FILES} > ${TARGET_FILE}
 
+node_modules:
+	npm install .
+
 submodules:
 	git submodule update --init
 
@@ -60,10 +63,10 @@ hint: ${TARGET_FILE}
 		echo "--------------------------"; \
 	done
 
-check: submodules ${TARGET_FILE}
+check: submodules node_modules ${TARGET_FILE}
 	make -C ${NODE_TESTS_DIR} check
 
-dist: ${TARGET_FILE}
+dist: node_modules ${TARGET_FILE}
 	mkdir ${DIST_DIR}
 	cp ${DIST_FILES} ${DIST_DIR}
 
@@ -74,7 +77,7 @@ dist: ${TARGET_FILE}
 	for file in `ls ${DIST_DIR}/*.js`; do \
 		fileMin=`echo $$file | sed -e 's/\.js/.min.js/'` ; \
 		echo "Minifying $$file => $$fileMin" ; \
-		${UGLIFY} ${UGLIFY_OPTS} $$file > $$fileMin ; \
+		${UGLIFY} $$file ${UGLIFY_OPTS} > $$fileMin ; \
 		echo "Post Processing $$file" ; \
 		${NODE} ${POSTPROC} $$file ${VERSION} ; \
 		echo "Post Processing $$fileMin" ; \
@@ -93,3 +96,5 @@ sign: dist
 clean:
 	rm -rf ${DIST_DIR} ${DIST_FILE} ${DIST_FILE_SIG} \
 		${DIST_FILE_MD5} ${DIST_FILE_SHA1} ${TARGET_FILE}
+
+.PHONY: clean install sign dist check hint submodules node_modules
