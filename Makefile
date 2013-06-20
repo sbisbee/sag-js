@@ -69,7 +69,7 @@ dist: ${TARGET_FILE}
 
 	mv ${DIST_DIR}/${TARGET_FILE} ${DIST_DIR}/sag-${VERSION}.js
 	cp package.json ${DIST_DIR}
-	sed -i -e '/"main":/s/sag\.js/sag-0.1.0.js/' -e '/"version":/s/UNRELEASED/0.1.0/' ${DIST_DIR}/package.json
+	sed -i -e '/"main":/s/sag\.js/sag-${VERSION}.js/' -e '/"version":/s/UNRELEASED/${VERSION}/' ${DIST_DIR}/package.json
 
 	for file in `ls ${DIST_DIR}/*.js`; do \
 		fileMin=`echo $$file | sed -e 's/\.js/.min.js/'` ; \
