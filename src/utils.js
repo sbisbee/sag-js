@@ -20,7 +20,7 @@ exports.serverFromURL = function(url) {
   i = null;
   parts.host = parts.host.split(':');
 
-  sagRes = exports.server(parts.host.shift(), parts.host.shift());
+  sagRes = exports.server(parts.host.shift(), parts.host.shift(), parts.protocol === 'https:');
 
   //log the user in (if provided)
   if(parts.auth) {
