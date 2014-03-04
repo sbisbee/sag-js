@@ -272,7 +272,7 @@ asyncTest('head()', function() {
       url: '/',
       callback: function(resp) {
         equal(resp._HTTP.status, 200, 'got a 200');
-        strictEqual(resp.body, undefined, 'no body in resp object');
+        equal(resp.body, false, 'no body in resp object');
 
         start();
       }

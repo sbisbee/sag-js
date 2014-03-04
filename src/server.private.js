@@ -170,17 +170,13 @@ function procPacket(method, path, data, headers, callback) {
         headers: headers
       },
       function(res) {
-        var resBody;
+        var resBody = '';
 
         res.setEncoding('utf8');
 
-        if(method !== 'HEAD') {
-          resBody = '';
-
-          res.on('data', function(chunk) {
-            resBody += chunk;
-          });
-        }
+        res.on('data', function(chunk) {
+          resBody += chunk;
+        });
 
         res.on('end', function() {
           onResponse(res.statusCode, res.headers, resBody, callback);
