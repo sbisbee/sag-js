@@ -9,6 +9,10 @@ New Features
   * Use JSON when creating a session with CouchDB so we don't have to deal with
     URL encoding issues.
 
+Fixed Bugs
+
+  * The callback for `login()` now passes the correct, documented arguments.
+
 Version 0.4.0
 -------------
 

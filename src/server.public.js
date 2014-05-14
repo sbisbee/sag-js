@@ -642,7 +642,7 @@ publicThat = {
           }
 
           if(opts.callback) {
-            opts.callback(publicThat);
+            opts.callback(resp, resp.body.ok);
           }
         }
       );
