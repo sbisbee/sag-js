@@ -629,10 +629,8 @@ publicThat = {
       procPacket(
         'POST',
         '/_session',
-        'name=' + opts.user + '&password=' + opts.pass,
-        {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
+        { name: opts.user, password: opts.pass },
+        { 'Content-Type': 'application/json' },
         function(resp) {
           if(resp.cookies && resp.cookies.AuthSession) {
             publicThat.setCookie(
