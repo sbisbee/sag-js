@@ -11,6 +11,10 @@ New Features
 
 Fixed Bugs
 
+  * Fixed the response body for HEAD requests in Node 0.10.x.
+
+  * Fixed `serverFromURL()` for SSL.
+
   * The callback for `login()` now passes the correct, documented arguments.
 
 Version 0.4.0
