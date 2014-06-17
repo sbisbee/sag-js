@@ -23,8 +23,8 @@ exports.serverFromURL = function(url) {
   parts.host = parts.host.split(':');
 
   sagRes = exports.server(
-      parts.host.shift(), 
-      parts.host.shift() || (useSSL) ? 443 : 80,
+      parts.host[0],
+      parts.host[1] || ((useSSL) ? 443 : 80),
       useSSL);
 
   //log the user in (if provided)
