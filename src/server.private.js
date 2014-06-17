@@ -223,7 +223,7 @@ function procPacket(method, path, data, headers, callback) {
       }
     };
 
-    xmlHTTP.open(method, 'http://' + host + ':' + port + path);
+    xmlHTTP.open(method, (useSSL ? 'https://' : 'http://') + host + ':' + port + path);
 
     for(i in headers) {
       if(headers.hasOwnProperty(i)) {

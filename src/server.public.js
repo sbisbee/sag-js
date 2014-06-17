@@ -668,7 +668,7 @@ publicThat = {
   },
 
   toString: function() {
-    var str = 'http://';
+    var str = (useSSL) ? 'https://' : 'http://';
 
     if(currAuth && currAuth.user) {
       str += currAuth.user + ':' + (currAuth.pass || '') + '@';

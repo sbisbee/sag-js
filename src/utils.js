@@ -1,6 +1,7 @@
 exports.serverFromURL = function(url) {
   var parts;
   var sagRes;
+  var useSSL;
 
   var i;
 
@@ -9,6 +10,7 @@ exports.serverFromURL = function(url) {
   }
 
   parts = parseURL(url);
+  useSSL = parts.protocol === 'https:';
 
   //create the server
   i = parts.host.indexOf('@');
@@ -20,7 +22,10 @@ exports.serverFromURL = function(url) {
   i = null;
   parts.host = parts.host.split(':');
 
-  sagRes = exports.server(parts.host.shift(), parts.host.shift(), parts.protocol === 'https:');
+  sagRes = exports.server(
+      parts.host.shift(), 
+      parts.host.shift() || (useSSL) ? 443 : 80,
+      useSSL);
 
   //log the user in (if provided)
   if(parts.auth) {
