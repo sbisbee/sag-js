@@ -1,6 +1,5 @@
 # Binaries
 export NODE := node
-UGLIFY := ./node_modules/.bin/uglifyjs
 GPG := gpg
 SHA1SUM := sha1sum
 MD5SUM := md5sum

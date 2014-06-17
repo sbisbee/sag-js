@@ -13,9 +13,6 @@
     "node": "0.10 || 0.8 || 0.6 || 0.4"
   },
   "dependencies": {},
-  "devDependencies": {
-    "uglify-js": "2.3.x"
-  },
   "keywords": [
     "couchdb",
     "couch",
