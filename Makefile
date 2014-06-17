@@ -39,9 +39,6 @@ POSTPROC := ${BUILD_DIR}/postproc.js
 # unit test files for node
 NODE_TESTS_DIR := ${TESTS_DIR}/node
 
-# uglify
-UGLIFY_OPTS := --unsafe
-
 all: ${TARGET_FILE}
 
 ${SRC_FILES}:
@@ -52,9 +49,6 @@ ${TARGET_FILE}: ${SRC_FILES}
 node_modules:
 	npm install .
 
-submodules:
-	git submodule update --init
-
 hint: ${TARGET_FILE}
 	@@for file in ${JSHINT_TARGETS}; do \
 		echo "Hinting: $$file"; \
@@ -62,7 +56,7 @@ hint: ${TARGET_FILE}
 		echo "--------------------------"; \
 	done
 
-check: submodules node_modules ${TARGET_FILE}
+check: node_modules ${TARGET_FILE}
 	make -C ${NODE_TESTS_DIR} check
 
 dist: node_modules ${TARGET_FILE}
@@ -74,9 +68,6 @@ dist: node_modules ${TARGET_FILE}
 	sed -i -e '/"main":/s/sag\.js/sag-${VERSION}.js/' -e '/"version":/s/UNRELEASED/${VERSION}/' ${DIST_DIR}/package.json
 
 	for file in `ls ${DIST_DIR}/*.js`; do \
-		fileMin=`echo $$file | sed -e 's/\.js/.min.js/'` ; \
-		echo "Minifying $$file => $$fileMin" ; \
-		${UGLIFY} $$file ${UGLIFY_OPTS} > $$fileMin ; \
 		echo "Post Processing $$file" ; \
 		${NODE} ${POSTPROC} $$file ${VERSION} ; \
 		echo "Post Processing $$fileMin" ; \
@@ -96,4 +87,4 @@ clean:
 	rm -rf ${DIST_DIR} ${DIST_FILE} ${DIST_FILE_SIG} \
 		${DIST_FILE_MD5} ${DIST_FILE_SHA1} ${TARGET_FILE}
 
-.PHONY: clean install sign dist check hint submodules node_modules
+.PHONY: clean install sign dist check hint node_modules
