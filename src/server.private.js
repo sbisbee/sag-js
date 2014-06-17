@@ -3,15 +3,8 @@ exports.server = function(host, port, useSSL) {
 // The API that server returns.
 var publicThat;
 
-/*
- * http is the node module whereas xmlHTTP is the XHR object. Also a good
- * way to detect whether you're in node or browser land.
- */
-var http;
-var xmlHTTP;
-
-// If in node land this is the url module.
-var urlUtils;
+var http = (useSSL) ? require('https') : require('http');
+var urlUtils = require('url');
 
 // Whether we should decode response bodies or not.
 var decodeJSON = true;
@@ -51,17 +44,7 @@ function throwIfNoCurrDB() {
 
 // Because JS can't do base 64 on its own (wtf?)
 function toBase64(str) {
-  //node
-  if(typeof Buffer === 'function') {
-    return new Buffer(str).toString('base64');
-  }
-
-  //browser
-  if(typeof btoa === 'function') {
-    return btoa(str);
-  }
-
-  throw new Error('No base64 encoder available.');
+  return new Buffer(str).toString('base64');
 }
 
 // Common interface for XHR and http[s] modules to send responses to.
@@ -133,11 +116,6 @@ function procPacket(method, path, data, headers, callback) {
 
   //only when we built a cookieStr above
   if(cookieStr) {
-    //debug help
-    if(xmlHTTP && console && typeof console.log === 'function') {
-      console.log('Sending Cookie header, but do not expect any cookies in the result - CouchDB uses httpOnly cookies.');
-    }
-
     headers.Cookie = ((headers.Cookie) ? headers.Cookie : '') + cookieStr;
   }
 
@@ -157,85 +135,41 @@ function procPacket(method, path, data, headers, callback) {
     headers['X-CouchDB-WWW-Authenticate'] = 'Cookie';
   }
 
-  if(http) {
-    // Node.JS http module
-    headers['User-Agent'] = 'Sag-JS/0.4'; //can't set this in browsers
+  // Node.JS http module
+  headers['User-Agent'] = 'Sag-JS/0.4';
 
-    req = http.request(
-      {
-        method: method,
-        host: host,
-        port: port,
-        path: path,
-        headers: headers
-      },
-      function(res) {
-        var resBody = '';
+  req = http.request(
+    {
+      method: method,
+      host: host,
+      port: port,
+      path: path,
+      headers: headers
+    },
+    function(res) {
+      var resBody = '';
 
-        res.setEncoding('utf8');
+      res.setEncoding('utf8');
 
-        res.on('data', function(chunk) {
-          resBody += chunk;
-        });
+      res.on('data', function(chunk) {
+        resBody += chunk;
+      });
 
-        res.on('end', function() {
-          onResponse(res.statusCode, res.headers, resBody, callback);
-        });
-      }
-    );
-
-    req.on('error', function(e) {
-      console.log('problem with request: ' + e);
-    });
-
-    if(data) {
-      req.write(data);
+      res.on('end', function() {
+        onResponse(res.statusCode, res.headers, resBody, callback);
+      });
     }
+  );
 
-    req.end();
+  req.on('error', function(e) {
+    console.log('problem with request: ' + e);
+  });
+
+  if(data) {
+    req.write(data);
   }
-  else if(xmlHTTP) {
-    // Browser xhr magik
-    xmlHTTP.onreadystatechange = function() {
-      var headers = {};
-      var rawHeaders;
-      var i;
 
-      if(this.readyState === 4 && this.status > 0) {
-        rawHeaders = this.getAllResponseHeaders().split('\n');
-
-        for(i in rawHeaders) {
-          if(rawHeaders.hasOwnProperty(i)) {
-            rawHeaders[i] = rawHeaders[i].split(': ');
-
-            if(rawHeaders[i][1]) {
-              headers[rawHeaders[i][0].toLowerCase()] = rawHeaders[i][1].trim();
-            }
-          }
-        }
-
-        onResponse(
-          this.status,
-          headers,
-          (method !== 'HEAD') ? this.response : null,
-          callback
-        );
-      }
-    };
-
-    xmlHTTP.open(method, (useSSL ? 'https://' : 'http://') + host + ':' + port + path);
-
-    for(i in headers) {
-      if(headers.hasOwnProperty(i)) {
-        xmlHTTP.setRequestHeader(i, headers[i]);
-      }
-    }
-
-    xmlHTTP.send(data || null);
-  }
-  else {
-    throw new Error('coder fail');
-  }
+  req.end();
 }
 
 // Adds a query param to a URL.
@@ -244,22 +178,11 @@ function setURLParameter(url, key, value) {
     throw new Error('URLs must be a string');
   }
 
-  if(urlUtils) {
-    //node.js
-    url = urlUtils.parse(url);
+  url = urlUtils.parse(url);
 
-    url.search = ((url.search) ? url.search + '&' : '?') + key + '=' + value;
+  url.search = ((url.search) ? url.search + '&' : '?') + key + '=' + value;
 
-    url = urlUtils.format(url);
-  }
-  else {
-    //browser
-    url = url.split('?');
-
-    url[1] = ((url[1]) ? url[1] + '&' : '') + key + '=' + value;
-
-    url = url.join('?');
-  }
+  url = urlUtils.format(url);
 
   return url;
 }
@@ -267,18 +190,3 @@ function setURLParameter(url, key, value) {
 //defaults
 host = host || 'localhost';
 port = port || '5984';
-
-//environment and http engine detection
-if(typeof XMLHttpRequest === 'function') {
-  xmlHTTP = new XMLHttpRequest();
-}
-else if(typeof ActiveXObject === 'function') {
-  xmlHTTP = new ActiveXObject('Microsoft.XMLHTTP');
-}
-else if(typeof require === 'function') {
-  http = (useSSL) ? require('https') : require('http');
-  urlUtils = require('url');
-}
-else {
-  throw new Error('whoops');
-}
