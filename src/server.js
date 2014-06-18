@@ -59,6 +59,8 @@ module.exports.server = function(host, port, useSSL) {
     var i;
     var cookieStr = '';
 
+    headers = headers || {};
+
     for(i in globalCookies) {
       if(globalCookies.hasOwnProperty(i)) {
         cookieStr += i + '=' + globalCookies[i] + ';';
@@ -167,6 +169,7 @@ module.exports.server = function(host, port, useSSL) {
         throw new Error('invalid database name');
       }
 
+      //TODO this logic doesn't make sense
       if(createCallback) {
         if(!createIfNotFound) {
           throw new Error('Provided a callback but told not to check if the database exists.');
