@@ -1,7 +1,7 @@
 var urlUtils = require('url');
 
 // Sag's HTTP engine
-var http = require('./http.js');
+var httpEngine = require('./http.js');
 
 // Because JS can't do base 64 on its own
 // Adds a query param to a URL.
@@ -19,12 +19,19 @@ var setURLParameter = function(url, key, value) {
   return url;
 };
 
+var toBase64 = function(str) {
+  return new Buffer(str).toString('base64');
+};
+
 module.exports.AUTH_BASIC = 'AUTH_BASIC';
 module.exports.AUTH_COOKIE = 'AUTH_COOKIE';
 
 module.exports.server = function(host, port, useSSL) {
   // The API that server returns.
   var publicThat;
+
+  // Our instance of Sag's HTTP engine (from `httpEngine.init()`)
+  var http;
 
   // Whether we should decode response bodies or not.
   var decodeJSON = true;
@@ -46,11 +53,48 @@ module.exports.server = function(host, port, useSSL) {
     }
   };
 
+  /*
+   * Apply all internal state to packet processing, then invoke the HTTP engine's
+   * stateless `procPacket()`.
+   */
+  var procPacket = function(method, path, data, headers, callback) {
+    var i;
+    var cookieStr = '';
+
+    for(i in globalCookies) {
+      if(globalCookies.hasOwnProperty(i)) {
+        cookieStr += i + '=' + globalCookies[i] + ';';
+      }
+    }
+
+    //only when we built a cookieStr above
+    if(cookieStr) {
+      headers.Cookie = ((headers.Cookie) ? headers.Cookie : '') + cookieStr;
+    }
+
+    if(pathPrefix) {
+      path = pathPrefix + path;
+    }
+
+    //authentication
+    if(currAuth.type === module.exports.AUTH_BASIC && (currAuth.user || currAuth.pass)) {
+      headers.Authorization = 'Basic ' + toBase64(currAuth.user + ':' + currAuth.pass);
+    }
+    else if(currAuth.type === module.exports.AUTH_COOKIE && typeof publicThat.getCookie('AuthSession') !== 'string') {
+      throw new Error('Trying to use cookie auth, but we never got an AuthSession cookie from the server.');
+    }
+
+    http.procPacket(method, path, data, headers, callback);
+  };
+
   //defaults
   host = host || 'localhost';
   port = port || '5984';
 
-  http.useSSL(useSSL);
+  //start the engine
+  http = httpEngine.init(host, port, !!useSSL);
+
+  //the API we'll expose
 
   publicThat = {
     get: function(opts) {
@@ -76,7 +120,7 @@ module.exports.server = function(host, port, useSSL) {
         opts.url = setURLParameter(opts.url, 'stale', 'ok');
       }
 
-      http.procPacket(
+      procPacket(
         'GET',
         '/' + currDatabase + opts.url,
         null,
@@ -112,7 +156,7 @@ module.exports.server = function(host, port, useSSL) {
         path += opts.url;
       }
 
-      http.procPacket('POST', path, opts.data, null, opts.callback);
+      procPacket('POST', path, opts.data, null, opts.callback);
     },
 
     decode: function(d) {
@@ -134,7 +178,7 @@ module.exports.server = function(host, port, useSSL) {
           throw new Error('Invalid callback type.');
         }
 
-        http.procPacket('GET', '/' + db, null, null, function(resp) {
+        procPacket('GET', '/' + db, null, null, function(resp) {
           if(resp._HTTP.status === 404) {
             //create the db
             publicThat.createDatabase(db, function(resp) {
@@ -163,7 +207,7 @@ module.exports.server = function(host, port, useSSL) {
     },
 
     getAllDatabases: function(callback) {
-      http.procPacket('GET', '/_all_dbs', null, null, callback);
+      procPacket('GET', '/_all_dbs', null, null, callback);
     },
 
     getStats: function(callback) {
@@ -173,7 +217,7 @@ module.exports.server = function(host, port, useSSL) {
         throw new Error('Invalid callback.');
       }
 
-      http.procPacket('GET', '/_stats', null, null, callback);
+      procPacket('GET', '/_stats', null, null, callback);
     },
 
     generateIDs: function(opts) {
@@ -190,7 +234,7 @@ module.exports.server = function(host, port, useSSL) {
         throw new Error('Invalid count type');
       }
 
-      http.procPacket('GET', url, null, null, opts.callback);
+      procPacket('GET', url, null, null, opts.callback);
     },
 
     put: function(opts) {
@@ -232,7 +276,7 @@ module.exports.server = function(host, port, useSSL) {
         }
       }
 
-      http.procPacket(
+      procPacket(
         'PUT',
         '/' + currDatabase + '/' + opts.id,
         opts.data,
@@ -256,7 +300,7 @@ module.exports.server = function(host, port, useSSL) {
         throw new Error('Invalid callback type');
       }
 
-      http.procPacket(
+      procPacket(
         'DELETE',
         '/' + currDatabase + '/' + id,
         null,
@@ -286,7 +330,7 @@ module.exports.server = function(host, port, useSSL) {
         throw new Error('Invalid callback type');
       }
 
-      http.procPacket(
+      procPacket(
         'HEAD',
         '/' + currDatabase + opts.url,
         null,
@@ -302,7 +346,7 @@ module.exports.server = function(host, port, useSSL) {
         throw new Error('Invalid callback type');
       }
 
-      http.procPacket('GET', '/_session', null, null, callback);
+      procPacket('GET', '/_session', null, null, callback);
     },
 
     bulk: function(opts) {
@@ -328,7 +372,7 @@ module.exports.server = function(host, port, useSSL) {
 
       data.docs = opts.docs;
 
-      http.procPacket(
+      procPacket(
         'POST',
         '/' + currDatabase + '/_bulk_docs',
         data,
@@ -360,7 +404,7 @@ module.exports.server = function(host, port, useSSL) {
         throw new Error('Invalid callback type.');
       }
 
-      http.procPacket('POST', url, null, null, opts.callback);
+      procPacket('POST', url, null, null, opts.callback);
     },
 
     copy: function(opts) {
@@ -390,7 +434,7 @@ module.exports.server = function(host, port, useSSL) {
         throw new Error('Invalid callback type.');
       }
 
-      http.procPacket(
+      procPacket(
         'COPY',
         '/' + currDatabase + '/' + opts.srcID,
         null,
@@ -414,7 +458,7 @@ module.exports.server = function(host, port, useSSL) {
         throw new Error('Invalid callback type.');
       }
 
-      http.procPacket('PUT', '/' + name, null, null, callback);
+      procPacket('PUT', '/' + name, null, null, callback);
     },
 
     deleteDatabase: function(name, callback) {
@@ -426,7 +470,7 @@ module.exports.server = function(host, port, useSSL) {
         throw new Error('Invalid callback type.');
       }
 
-      http.procPacket('DELETE', '/' + name, null, null, callback);
+      procPacket('DELETE', '/' + name, null, null, callback);
     },
 
     setAttachment: function(opts) {
@@ -464,7 +508,7 @@ module.exports.server = function(host, port, useSSL) {
         url += '?rev=' + opts.docRev;
       }
 
-      http.procPacket(
+      procPacket(
         'PUT',
         url,
         opts.data,
@@ -552,11 +596,11 @@ module.exports.server = function(host, port, useSSL) {
         }
       }
 
-      http.procPacket('POST', '/_replicate', data, null, opts.callback);
+      procPacket('POST', '/_replicate', data, null, opts.callback);
     },
 
     activeTasks: function(cb) {
-      http.procPacket('GET', '/_active_tasks', null, null, cb);
+      procPacket('GET', '/_active_tasks', null, null, cb);
     },
 
     getAllDocs: function(opts) {
@@ -624,10 +668,10 @@ module.exports.server = function(host, port, useSSL) {
           throw new Error('Invalid keys (not an array).');
         }
 
-        http.procPacket('POST', url, { keys: opts.keys }, null, opts.callback);
+        procPacket('POST', url, { keys: opts.keys }, null, opts.callback);
       }
 
-      http.procPacket('GET', url, null, null, opts.callback);
+      procPacket('GET', url, null, null, opts.callback);
     },
 
     setPathPrefix: function(pre) {
@@ -680,7 +724,7 @@ module.exports.server = function(host, port, useSSL) {
       }
       else if(opts.type === module.exports.AUTH_COOKIE) {
         //TODO url encode
-        http.procPacket(
+        procPacket(
           'POST',
           '/_session',
           { name: opts.user, password: opts.pass },
