@@ -31,7 +31,7 @@ DIST_FILES := ${TARGET_FILE} LICENSE NOTICE README CHANGELOG
 
 # jshint
 JSHINT_FILE := ${BUILD_DIR}/jshint.js
-JSHINT_TARGETS := ./${TARGET_FILE}
+JSHINT_TARGETS := ${SRC_DIR}/*.js ${TESTS_DIR}/*.js
 
 # post processing file
 POSTPROC := ${BUILD_DIR}/postproc.js
@@ -43,20 +43,18 @@ all: ${TARGET_FILE}
 
 ${SRC_FILES}:
 
-${TARGET_FILE}: ${SRC_FILES}
-	cat ${SRC_FILES} > ${TARGET_FILE}
-
 node_modules:
 	npm install .
 
-hint: ${TARGET_FILE}
+hint: node_modules
 	@@for file in ${JSHINT_TARGETS}; do \
 		echo "Hinting: $$file"; \
 		${NODE} ${JSHINT_FILE} $$file; \
 		echo "--------------------------"; \
 	done
+	@@echo ''
 
-check: node_modules
+check: node_modules hint
 	make -C ${TESTS_DIR} check
 
 dist: node_modules ${TARGET_FILE}
