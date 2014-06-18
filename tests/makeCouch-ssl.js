@@ -9,7 +9,7 @@ function makeCouch(setDB, loginCallback) {
 
   if(typeof loginCallback === 'function') {
     loginOpts.callback = function(resp, succ) {
-      loginCallback(couch);
+      loginCallback(null, couch);
     };
   }
 
