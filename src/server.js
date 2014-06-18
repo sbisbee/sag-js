@@ -33,8 +33,6 @@ module.exports.server = function(host, port, useSSL) {
   // Our instance of Sag's HTTP engine (from `httpEngine.init()`)
   var http;
 
-  // Whether we should decode response bodies or not.
-  var decodeJSON = true;
   // The current database.
   var currDatabase;
   // Whether ?stale=ok should be put into URLs by default or not.
@@ -160,7 +158,7 @@ module.exports.server = function(host, port, useSSL) {
     },
 
     decode: function(d) {
-      decodeJSON = !! d;
+      http.decodeJSON(!!d);
       return publicThat;
     },
 

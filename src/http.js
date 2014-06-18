@@ -2,7 +2,7 @@ var http;
 var useSSL;
 
 // Common interface for http[s] modules to send responses to.
-var onResponse = function(httpCode, headers, body, callback) {
+var onResponse = function(httpCode, headers, body, callback, decodeJSON) {
   var resp = {
     _HTTP: {
       status: httpCode
@@ -42,9 +42,14 @@ var onResponse = function(httpCode, headers, body, callback) {
 
 module.exports.init = function(host, port, useSSL) {
   var http = (useSSL) ? require('https') : require('http');
+  var decodeJSON = true;
 
   // The common interface for the API functions to cause a net call.
   return {
+    decodeJSON: function(decode) {
+      decodeJSON = !!decode;
+    },
+
     procPacket: function(method, path, data, headers, callback) {
       var procData = function(res) {
         var resBody = '';
@@ -56,7 +61,7 @@ module.exports.init = function(host, port, useSSL) {
         });
 
         res.on('end', function() {
-          onResponse(res.statusCode, res.headers, resBody, callback);
+          onResponse(res.statusCode, res.headers, resBody, callback, decodeJSON);
         });
       };
 
