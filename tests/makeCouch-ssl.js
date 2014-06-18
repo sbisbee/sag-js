@@ -1,23 +1,25 @@
-function makeCouch(setDB, loginCallback) {
-  var couch = sag.server('localhost', '6984', true);
+module.exports = function(sag, dbName) {
+  return function(setDB, loginCallback) {
+    var couch = sag.server('localhost', '6984', true);
 
-  var loginOpts = {
-    user: 'admin',
-    pass: 'passwd',
-    type: sag.AUTH_COOKIE
-  };
-
-  if(typeof loginCallback === 'function') {
-    loginOpts.callback = function(resp, succ) {
-      loginCallback(null, couch);
+    var loginOpts = {
+      user: 'admin',
+      pass: 'passwd',
+      type: sag.AUTH_COOKIE
     };
-  }
 
-  couch.login(loginOpts);
+    if(typeof loginCallback === 'function') {
+      loginOpts.callback = function(resp, succ) {
+        loginCallback(null, couch);
+      };
+    }
 
-  if(setDB) {
-    couch.setDatabase(dbName);
-  }
+    couch.login(loginOpts);
 
-  return couch;
-}
+    if(setDB) {
+      couch.setDatabase(dbName);
+    }
+
+    return couch;
+  };
+};

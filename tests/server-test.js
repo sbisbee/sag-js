@@ -1,72 +1,66 @@
 var assert = require('assert');
-var vows = require('../node_modules/vows');
 var sag = require('../src/server.js');
 
-var dbName = 'sag-js-tests';
-var dbNameRepl = 'sag-js-tests-repl';
+var dbName = 'sag-js-describes';
+var dbNameRepl = 'sag-js-describes-repl';
 
-var suite = vows.describe('server');
+var makeCouch = require(process.env.MAKE_COUCH)(sag, dbName);
 
-suite.addBatch({
-  'Core': {
-    'setPathPrefix()': function(topic) {
-      var couch = makeCouch(false);
-      assert.isObject(couch.setPathPrefix(''));
-    }
-  }
+assert.isObject = function(target, msg) {
+  assert.strictEqual(typeof target, 'object', msg);
+};
+
+assert.isFunction = function(target, msg) {
+  assert.strictEqual(typeof target, 'function', msg);
+};
+
+describe('makeCouch() and server()', function() {
+  it('should give us a good server object', function() {
+    var couch = makeCouch(false);
+
+    assert.isObject(couch);
+    assert.isFunction(couch.get);
+  });
 });
 
-suite.run();
-
-/*
-test('Init', function() {
-  var couch = makeCouch(false);
-  expect(1);
-
-  equal(typeof couch, 'object', 'server() should return an object');
+describe('setPathPrefix()', function() {
+  var couch = makeCouch();
+  assert.isObject(couch.setPathPrefix(''));
 });
 
-test('setDatabase() and currentDatabase()', function() {
-  var couch = makeCouch(false);
-
-  expect(3);
-
-  equal(couch.currentDatabase(), undefined, 'no db yet');
-
-  equal(couch.setDatabase(dbName), couch, 'returns sag object');
-  equal(couch.currentDatabase(), dbName, 'did it get set?');
-});
-
-test('cookies', function() {
+describe('setDatabase() and currentDatabase()', function() {
   var couch = makeCouch(false);
 
-  expect(3);
+  assert.strictEqual(couch.currentDatabase(), undefined, 'no db yet');
 
-  equal(couch.setCookie('foo', 'bar'), couch, 'got the api back');
-
-  equal(couch.getCookie('foo'), 'bar', 'set internally correctly');
-
-  equal(couch.getCookie('a'), undefined, 'not set');
+  assert.strictEqual(couch.setDatabase(dbName), couch, 'returns sag object');
+  assert.strictEqual(couch.currentDatabase(), dbName, 'did it get set?');
 });
 
-asyncTest('createDatabase()', function() {
-  expect(2);
+describe('cookies', function() {
+  var couch = makeCouch(false);
 
+  assert.strictEqual(couch.setCookie('foo', 'bar'), couch, 'got the api back');
+
+  assert.strictEqual(couch.getCookie('foo'), 'bar', 'set internally correctly');
+
+  assert.strictEqual(couch.getCookie('a'), undefined, 'not set');
+});
+
+describe('createDatabase()', function() {
   makeCouch(false, function(couch) {
     couch.createDatabase(dbName, function(resp) {
-      equal(resp.body.ok, true, 'JSON body/parsing check');
-      equal(resp._HTTP.status, '201', 'Proper HTTP code');
+      assert.strictEqual(resp.body.ok, true, 'JSON body/parsing check');
+      assert.strictEqual(resp._HTTP.status, '201', 'Proper HTTP code');
 
       couch.deleteDatabase(dbName, function(r) {
-        start();
+        done();
       });
     });
   });
 });
 
-asyncTest('setDatabase() and create if does not exist', function() {
-  expect(2);
-
+describe('setDatabase() and create if does not exist', function() {
   makeCouch(false, function(couch) {
 
     couch.setDatabase(dbName);
@@ -74,39 +68,37 @@ asyncTest('setDatabase() and create if does not exist', function() {
     couch.get({
       url: '/',
       callback: function(resp) {
-        equal(resp._HTTP.status, 404, 'expect it to not be there');
+        assert.strictEqual(resp._HTTP.status, 404, 'expect it to not be there');
 
         couch.setDatabase(dbName, true, function(exists) {
           ok(exists, 'db should exist now');
 
-          start();
+          done();
         });
       }
     });
   });
 });
 
-asyncTest('decode()', function() {
-  expect(5);
-
+describe('decode()', function() {
   makeCouch(true, function(couch) {
-    equal(couch.decode(false), couch, 'returns the sag obj');
+    assert.strictEqual(couch.decode(false), couch, 'returns the sag obj');
 
     couch.get({
       url: '/',
       callback: function(resp) {
-        equal(resp._HTTP.status, 200, 'got a response');
-        equal(typeof resp.body, 'string', 'no decode');
+        assert.strictEqual(resp._HTTP.status, 200, 'got a response');
+        assert.strictEqual(typeof resp.body, 'string', 'no decode');
 
         couch.decode(true);
 
         couch.get({
           url: '/',
           callback: function(resp) {
-            equal(resp._HTTP.status, 200, 'got a response');
-            equal(typeof resp.body, 'object', 'no decode');
+            assert.strictEqual(resp._HTTP.status, 200, 'got a response');
+            assert.strictEqual(typeof resp.body, 'object', 'no decode');
 
-            start();
+            done();
           }
         });
       }
@@ -114,23 +106,21 @@ asyncTest('decode()', function() {
   });
 });
 
-asyncTest('get()', function() {
-  expect(2);
-
+describe('get()', function() {
   makeCouch(true, function(couch) {
     couch.get({
       url: '',
       callback: function(resp) {
-        equal(resp._HTTP.status, 200, 'got a 200');
-        equal(typeof resp.body, 'object', 'body is decoded');
+        assert.strictEqual(resp._HTTP.status, 200, 'got a 200');
+        assert.strictEqual(typeof resp.body, 'object', 'body is decoded');
 
-        start();
+        done();
       }
     });
   });
 });
 
-asyncTest('put()', function() {
+describe('put()', function() {
   var docID = 'wellhellothere';
   var docData = {
     _id: docID,
@@ -138,15 +128,13 @@ asyncTest('put()', function() {
     worked: true
   };
 
-  expect(4);
-
   makeCouch(true, function(couch) {
     couch.put({
       id: docID,
       data: docData,
       callback: function(resp) {
-        equal(resp._HTTP.status, 201, 'got a 201');
-        equal(resp.body.id, docID, 'got the id');
+        assert.strictEqual(resp._HTTP.status, 201, 'got a 201');
+        assert.strictEqual(resp.body.id, docID, 'got the id');
 
         docData._rev = resp.body.rev;
 
@@ -154,7 +142,7 @@ asyncTest('put()', function() {
           id: docID,
           data: docData,
           callback: function(resp) {
-            equal(resp._HTTP.status, 201, 'got a 201');
+            assert.strictEqual(resp._HTTP.status, 201, 'got a 201');
 
             //for the next call and its deepEqual()
             docData._rev = resp.body.rev;
@@ -164,7 +152,7 @@ asyncTest('put()', function() {
               callback: function(resp) {
                 deepEqual(resp.body, docData, 'got the body');
 
-                start();
+                done();
               }
             });
           }
@@ -174,18 +162,16 @@ asyncTest('put()', function() {
   });
 });
 
-asyncTest('post()', function() {
+describe('post()', function() {
   var docData = {
     foo: 'bar'
   };
-
-  expect(2);
 
   makeCouch(true, function(couch) {
     couch.post({
       data: docData,
       callback: function(resp) {
-        equal(resp._HTTP.status, 201, 'got a 201');
+        assert.strictEqual(resp._HTTP.status, 201, 'got a 201');
 
         //for the next call and deepEqual
         docData._id = resp.body.id;
@@ -196,7 +182,7 @@ asyncTest('post()', function() {
           callback: function(resp) {
             deepEqual(resp.body, docData, 'data got saved');
 
-            start();
+            done();
           }
         });
       }
@@ -204,14 +190,12 @@ asyncTest('post()', function() {
   });
 });
 
-asyncTest('getAllDatabases()', function() {
-  expect(3);
-
+describe('getAllDatabases()', function() {
   makeCouch(true, function(couch) {
     couch.getAllDatabases(function(resp) {
       var hasOurDb = false;
 
-      equal(resp._HTTP.status, 200, 'got a 200');
+      assert.strictEqual(resp._HTTP.status, 200, 'got a 200');
       ok(Array.isArray(resp.body));
 
       for(var i in resp.body) {
@@ -223,30 +207,26 @@ asyncTest('getAllDatabases()', function() {
 
       ok(hasOurDb, 'Our DB should be in the list.');
 
-      start();
+      done();
     });
   });
 });
 
-asyncTest('head()', function() {
-  expect(2);
-
+describe('head()', function() {
   makeCouch(true, function(couch) {
     couch.head({
       url: '/',
       callback: function(resp) {
-        equal(resp._HTTP.status, 200, 'got a 200');
-        equal(resp.body, false, 'no body in resp object');
+        assert.strictEqual(resp._HTTP.status, 200, 'got a 200');
+        assert.strictEqual(resp.body, false, 'no body in resp object');
 
-        start();
+        done();
       }
     });
   });
 });
 
-asyncTest('post(), delete(), then head()', function() {
-  expect(3);
-
+describe('post(), delete(), then head()', function() {
   makeCouch(true, function(couch) {
     couch.post({
       data: {},
@@ -254,16 +234,16 @@ asyncTest('post(), delete(), then head()', function() {
         var id = resp.body.id;
         var rev = resp.body.rev;
 
-        equal(
+        assert.strictEqual(
           couch.delete(id, rev, function(resp) {
-            equal(resp._HTTP.status, 200, 'got a 200');
+            assert.strictEqual(resp._HTTP.status, 200, 'got a 200');
 
             couch.head({
               url: id,
               callback: function(resp) {
-                equal(resp._HTTP.status, 404, 'got a 404 after delete()');
+                assert.strictEqual(resp._HTTP.status, 404, 'got a 404 after delete()');
 
-                start();
+                done();
               }
             });
           }),
@@ -275,7 +255,7 @@ asyncTest('post(), delete(), then head()', function() {
   });
 });
 
-asyncTest('bulk()', function() {
+describe('bulk()', function() {
   var docs = [
     {
       foo: 'bar',
@@ -287,55 +267,49 @@ asyncTest('bulk()', function() {
     }
   ];
 
-  expect(2 + docs.length);
-
   makeCouch(true, function(couch) {
     couch.bulk({
       docs: docs,
       callback: function(resp) {
         var i;
 
-        equal(resp._HTTP.status, 201, 'got a 201 back');
-        equal(resp.body.length, docs.length, 'proper array size');
+        assert.strictEqual(resp._HTTP.status, 201, 'got a 201 back');
+        assert.strictEqual(resp.body.length, docs.length, 'proper array size');
 
         for(i in resp.body) {
           if(resp.body.hasOwnProperty(i)) {
-            equal(resp.body[i].id, docs[i]._id, 'matching _id');
+            assert.strictEqual(resp.body[i].id, docs[i]._id, 'matching _id');
           }
         }
 
-        start();
+        done();
       }
     });
   });
 });
 
-asyncTest('copy() to new doc', function() {
-  expect(2);
-
+describe('copy() to new doc', function() {
   makeCouch(true, function(couch) {
     couch.copy({
       srcID: 'one',
       dstID: 'oneCopy',
       callback: function(resp) {
-        equal(resp._HTTP.status, 201, 'got a 201 back');
-        equal(resp.body.id, 'oneCopy', 'got the id back');
+        assert.strictEqual(resp._HTTP.status, 201, 'got a 201 back');
+        assert.strictEqual(resp.body.id, 'oneCopy', 'got the id back');
 
-        start();
+        done();
       }
     });
   });
 });
 
-asyncTest('copy() to overwrite', function() {
-  expect(4);
-
+describe('copy() to overwrite', function() {
   makeCouch(true, function(couch) {
     //overwrite 'two' with 'one'
     couch.get({
       url: 'two',
       callback: function(resp) {
-        equal(resp._HTTP.status, 200, 'got a 200 back');
+        assert.strictEqual(resp._HTTP.status, 200, 'got a 200 back');
         ok(resp.body._id, 'has an _id');
         ok(resp.body._rev, 'has a _rev');
 
@@ -344,9 +318,9 @@ asyncTest('copy() to overwrite', function() {
           dstID: resp.body._id,
           dstRev: resp.body._rev,
           callback: function(resp) {
-            equal(resp._HTTP.status, 201, 'got a 201 back');
+            assert.strictEqual(resp._HTTP.status, 201, 'got a 201 back');
 
-            start();
+            done();
           }
         });
       }
@@ -354,14 +328,12 @@ asyncTest('copy() to overwrite', function() {
   });
 });
 
-asyncTest('setAttachment()', function() {
+describe('setAttachment()', function() {
   var attachment = {
     name: 'lyrics',
     data: 'If I could turn back time...',
     cType: 'text/ascii'
   };
-
-  expect(5);
 
   makeCouch(true, function(couch) {
     couch.get({
@@ -372,7 +344,7 @@ asyncTest('setAttachment()', function() {
           rev: resp.body._rev
         };
 
-        equal(resp._HTTP.status, 200, 'got a 200 back');
+        assert.strictEqual(resp._HTTP.status, 200, 'got a 200 back');
 
         couch.setAttachment({
           docID: doc.id,
@@ -383,20 +355,20 @@ asyncTest('setAttachment()', function() {
           contentType: attachment.cType,
 
           callback: function(resp) {
-            equal(resp._HTTP.status, 201, 'got a 201 back');
+            assert.strictEqual(resp._HTTP.status, 201, 'got a 201 back');
 
             couch.get({
               url: '/' + doc.id + '/' + attachment.name,
               callback: function(resp) {
-                equal(resp._HTTP.status, 200, 'got a 200 back');
-                equal(resp.body, attachment.data, 'proper data');
-                equal(
+                assert.strictEqual(resp._HTTP.status, 200, 'got a 200 back');
+                assert.strictEqual(resp.body, attachment.data, 'proper data');
+                assert.strictEqual(
                   resp.headers['content-type'],
                   attachment.cType,
                   'proper Content-Type header'
                 );
 
-                start();
+                done();
               }
             });
           }
@@ -406,9 +378,7 @@ asyncTest('setAttachment()', function() {
   });
 });
 
-asyncTest('replicate()', function() {
-  expect(2);
-
+describe('replicate()', function() {
   makeCouch(false, function(couch) {
     couch.replicate({
       source: dbName,
@@ -416,35 +386,33 @@ asyncTest('replicate()', function() {
       createTarget: true,
       continuous: false,
       callback: function(resp) {
-        equal(resp._HTTP.status, 200, 'got a 200 back');
+        assert.strictEqual(resp._HTTP.status, 200, 'got a 200 back');
         ok(resp.body.ok, 'ok');
 
         couch.deleteDatabase(dbNameRepl);
 
-        start();
+        done();
       }
     });
   });
 });
 
-asyncTest('getAllDocs()', function() {
-  expect(1);
-
+describe('getAllDocs()', function() {
   makeCouch(true, function(couch) {
     couch.getAllDocs({
       limit: 10,
       includeDocs: true,
       descending: true,
       callback: function(resp) {
-        equal(resp._HTTP.status, 200, 'got our 200');
+        assert.strictEqual(resp._HTTP.status, 200, 'got our 200');
 
-        start();
+        done();
       }
     });
   });
 });
 
-asyncTest('setStaleDefault() with view', function() {
+describe('setStaleDefault() with view', function() {
   var url = '/_design/app/_view/count';
   var value;
 
@@ -458,21 +426,19 @@ asyncTest('setStaleDefault() with view', function() {
     }
   };
 
-  expect(7);
-
   makeCouch(true, function(couch) {
     //create the ddoc
     couch.put({
       id: ddoc._id,
       data: ddoc,
       callback: function(resp) {
-        equal(resp._HTTP.status, 201, 'got a 201');
+        assert.strictEqual(resp._HTTP.status, 201, 'got a 201');
 
         //pump results into the ddoc
         couch.get({
           url: url,
           callback: function(resp) {
-            equal(resp._HTTP.status, 200, 'got a 200');
+            assert.strictEqual(resp._HTTP.status, 200, 'got a 200');
 
             //store the value before we write again
             value = resp.body.rows[0].value;
@@ -484,22 +450,22 @@ asyncTest('setStaleDefault() with view', function() {
             couch.post({
               data: {},
               callback: function(resp) {
-                equal(resp._HTTP.status, 201, 'got a 201');
+                assert.strictEqual(resp._HTTP.status, 201, 'got a 201');
 
                 //grab the stale results
                 couch.get({
                   url: url,
                   callback: function(resp) {
-                    equal(resp._HTTP.status, 200, 'got a 200');
-                    equal(resp.body.rows[0].value, value, 'got stale value');
+                    assert.strictEqual(resp._HTTP.status, 200, 'got a 200');
+                    assert.strictEqual(resp.body.rows[0].value, value, 'got stale value');
 
                     couch.setStaleDefault(false).get({
                       url: url,
                       callback: function(resp) {
-                        equal(resp._HTTP.status, 200, 'got a 200');
+                        assert.strictEqual(resp._HTTP.status, 200, 'got a 200');
                         notEqual(resp.body.rows[0].value, value, 'got a new one');
 
-                        start();
+                        done();
                       }
                     });
                   }
@@ -513,63 +479,55 @@ asyncTest('setStaleDefault() with view', function() {
   });
 });
 
-asyncTest('on()', function() {
-  expect(2);
-
+describe('on()', function() {
   makeCouch(true, function(couch) {
     couch.on('error', function(resp) {
-      equal((resp._HTTP.status >= 400), true, 'Expected an error.');
+      assert.strictEqual((resp._HTTP.status >= 400), true, 'Expected an error.');
     });
 
     couch.get({
       url: '/thisreallydoesnotexist',
       callback: function(resp, succ) {
-        equal(succ, false, 'Expected an error.');
+        assert.strictEqual(succ, false, 'Expected an error.');
 
-        start();
+        done();
       }
     });
   });
 });
 
-asyncTest('deleteDatabase()', function() {
-  expect(2);
-
+describe('deleteDatabase()', function() {
   makeCouch(true, function(couch) {
     couch.deleteDatabase(dbName, function(resp) {
-      equal(resp.body.ok, true, 'JSON body/parsing check');
-      equal(resp._HTTP.status, '200', 'Proper HTTP code');
+      assert.strictEqual(resp.body.ok, true, 'JSON body/parsing check');
+      assert.strictEqual(resp._HTTP.status, '200', 'Proper HTTP code');
 
-      start();
+      done();
     });
   });
 });
 
-asyncTest('activeTasks()', function() {
-  expect(2);
-
+describe('activeTasks()', function() {
   makeCouch(false, function(couch) {
     couch.activeTasks(function(resp, succ) {
-      equal(resp._HTTP.status, '200', 'Proper HTTP code');
-      equal(typeof resp.body, 'object', 'Valid body');
+      assert.strictEqual(resp._HTTP.status, '200', 'Proper HTTP code');
+      assert.strictEqual(typeof resp.body, 'object', 'Valid body');
 
-      start();
+      done();
     });
   });
 });
 
-test('toString()', function() {
+describe('toString()', function() {
   var couch = sag.server('google.com', '123');
   couch.login({ user: 'u', pass: 'p' });
   couch.setDatabase('howdy');
 
-  expect(2);
-
-  equal(couch.toString(), 'http://u:p@google.com:123/howdy', 'Using toString');
-  equal(couch + '', 'http://u:p@google.com:123/howdy', 'Auto-causing toString');
+  assert.strictEqual(couch.toString(), 'http://u:p@google.com:123/howdy', 'Using toString');
+  assert.strictEqual(couch + '', 'http://u:p@google.com:123/howdy', 'Auto-causing toString');
 });
 
-test('serverFromURL()', function() {
+describe('serverFromURL()', function() {
   var regCouch;
 
   var opts = {
@@ -581,14 +539,9 @@ test('serverFromURL()', function() {
     db: 'sag'
   };
 
-  expect(1);
-
   regCouch = sag.server(opts.host, opts.port);
   regCouch.login({ user: opts.user, pass: opts.pass });
   regCouch.setDatabase(opts.db);
 
-  equal(sag.serverFromURL(opts.url) + '', regCouch + '', 'Check for the same Sag');
+  assert.strictEqual(sag.serverFromURL(opts.url) + '', regCouch + '', 'Check for the same Sag');
 });
-
-QUnit.start();
-*/
