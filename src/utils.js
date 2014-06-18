@@ -1,4 +1,6 @@
-exports.serverFromURL = function(url) {
+var parseURL = require('url').parse;
+
+module.exports.serverFromURL = function(url) {
   var parts;
   var sagRes;
   var useSSL;
@@ -22,7 +24,7 @@ exports.serverFromURL = function(url) {
   i = null;
   parts.host = parts.host.split(':');
 
-  sagRes = exports.server(
+  sagRes = module.exports.server(
       parts.host[0],
       parts.host[1] || ((useSSL) ? 443 : 80),
       useSSL);
@@ -68,7 +70,7 @@ exports.serverFromURL = function(url) {
  * Would give you this:
  * { "a": { "0": [ "first" ], "1": [ "second" ] }, "b": { "0": [ "third" ] } }
  */
-exports.rowsToTree = function(rows) {
+module.exports.rowsToTree = function(rows) {
   var tree = {};
 
   rows.forEach(function(row) {
