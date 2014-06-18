@@ -1,60 +1,24 @@
+var assert = require('assert');
+var vows = require('../node_modules/vows');
+var sag = require('../src/server.js');
+
 var dbName = 'sag-js-tests';
 var dbNameRepl = 'sag-js-tests-repl';
 
-var isArray = Array.isArray || function(arg) {
-  return Object.prototype.toString.call(arg) == '[object Array]';
-};
+var suite = vows.describe('server');
 
-//force test order - see https://github.com/jquery/qunit/issues/74
-QUnit.config.reorder = false;
-
-//forces qunit's internal queue to run the tests in order instead of asyncly
-QUnit.config.autorun = false;
-
-QUnit.config.autostart = false;
-
-QUnit.config.requireExpects = true;
-
-QUnit.testStart = function(res) {
-  console.log('Test: %s', res.name);
-};
-
-QUnit.testDone = function(res) {
-  if(res.failed) {
-    console.log('-----');
+suite.addBatch({
+  'Core': {
+    'setPathPrefix()': function(topic) {
+      var couch = makeCouch(false);
+      assert.isObject(couch.setPathPrefix(''));
+    }
   }
-};
-
-QUnit.log = function(res) {
-  if(!res.result) {
-    console.log(res);
-  }
-};
-
-QUnit.done = function(res) {
-  console.log(
-    '\nPassed:\t\t%d\nFailed:\t\t%d\nTotal Run:\t%d\nSeconds:\t%d\n',
-    res.passed,
-    res.failed,
-    res.total,
-    res.runtime
-  );
-
-  if(typeof process === 'object' && typeof process.exit === 'function' && res.failed > 0) {
-    process.exit(1);
-  }
-};
-
-module('Core');
-
-test('setPathPrefix()', function() {
-  var couch = makeCouch(false);
-
-  expect(1);
-
-  equal(couch, couch.setPathPrefix(''), 'got the api back');
 });
 
+suite.run();
+
+/*
 test('Init', function() {
   var couch = makeCouch(false);
   expect(1);
@@ -248,7 +212,7 @@ asyncTest('getAllDatabases()', function() {
       var hasOurDb = false;
 
       equal(resp._HTTP.status, 200, 'got a 200');
-      ok(isArray(resp.body));
+      ok(Array.isArray(resp.body));
 
       for(var i in resp.body) {
         if(resp.body[i] === dbName) {
@@ -627,3 +591,4 @@ test('serverFromURL()', function() {
 });
 
 QUnit.start();
+*/

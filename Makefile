@@ -56,8 +56,8 @@ hint: ${TARGET_FILE}
 		echo "--------------------------"; \
 	done
 
-check: node_modules ${TARGET_FILE}
-	make -C ${NODE_TESTS_DIR} check
+check: node_modules
+	make -C ${TESTS_DIR} check
 
 dist: node_modules ${TARGET_FILE}
 	mkdir ${DIST_DIR}
