@@ -10,7 +10,7 @@ module.exports = function(sag, dbName) {
 
     if(typeof loginCallback === 'function') {
       loginOpts.callback = function(resp, succ) {
-        loginCallback(null, couch);
+        loginCallback(couch);
       };
     }
 
