@@ -225,6 +225,8 @@ function procPacket(method, path, data, headers, callback) {
 
     xmlHTTP.open(method, (useSSL ? 'https://' : 'http://') + host + ':' + port + path);
 
+	xmlHTTP.withCredentials = true;
+
     for(i in headers) {
       if(headers.hasOwnProperty(i)) {
         xmlHTTP.setRequestHeader(i, headers[i]);
