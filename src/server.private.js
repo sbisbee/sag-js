@@ -120,7 +120,7 @@ function procPacket(method, path, data, headers, callback) {
     headers['Content-Type'] = 'application/json';
   }
 
-  if(data && typeof data !== 'string' && ! data instanceof ArrayBuffer) {
+  if(data && typeof data !== 'string' && (! data instanceof ArrayBuffer)) {
     data = JSON.stringify(data);
   }
 
