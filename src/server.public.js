@@ -419,6 +419,39 @@ publicThat = {
     );
   },
 
+ deleteAttachment: function(opts) {
+    var url;
+
+    throwIfNoCurrDB();
+
+    if(!opts.name || typeof opts.name !== 'string') {
+      throw new Error('Invalid attachment name.');
+    }
+
+    if(!opts.docID || typeof opts.docID !== 'string') {
+      throw new Error('Invalid docID.');
+    }
+
+	// couchdb doc says rev is mandatory
+    if(!opts.docRev || typeof opts.docRev !== 'string') {
+      throw new Error('Invalid attachment docRev.');
+    }
+
+    if(opts.callback && typeof opts.callback !== 'function') {
+      throw new Error('Invalid callback type.');
+    }
+
+    url = '/' + currDatabase + '/' + opts.docID + '/' + opts.name + '?rev=' + opts.docRev;
+
+    procPacket(
+      'DELETE',
+      url,
+      opts.data,
+      {},
+      opts.callback
+    );
+  },
+
   setCookie: function(key, value) {
     if(!key || typeof key !== 'string') {
       throw new Error('Invalid cookie key.');
