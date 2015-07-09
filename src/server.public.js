@@ -384,8 +384,8 @@ publicThat = {
       throw new Error('Invalid attachment name.');
     }
 
-    if(!opts.data || typeof opts.data !== 'string') {
-      throw new Error('Invalid attachment data - remember to serialize it to a string!');
+	if(!opts.data || (typeof opts.data !== 'string' && ! opts.data instanceof ArrayBuffer)) {
+      throw new Error('Invalid attachment data - string or ArrayBuffer needed !');
     }
 
     if(!opts.contentType || typeof opts.contentType !== 'string') {
