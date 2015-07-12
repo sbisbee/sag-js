@@ -703,7 +703,8 @@ publicThat = {
       '/_session',
       {},
       {},
-      function(resp, success) {
+      function(resp) {
+        publicThat.setCookie('AuthSession',null);
         if(opts.callback) {
           opts.callback(resp, resp.body.ok);
         }
