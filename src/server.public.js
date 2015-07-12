@@ -689,6 +689,32 @@ publicThat = {
     }
   },
 
+  logout: function(opts) {
+    if(typeof opts !== 'object') {
+      throw new Error('Invalid options object.');
+    }
+
+    if(opts.callback && typeof opts.callback !== 'function') {
+      throw new Error('Invalid callback.');
+    }
+
+    procPacket(
+      'DELETE',
+      '/_session',
+      {},
+      {},
+      function(resp, success) {
+        if(opts.callback) {
+          opts.callback(resp, resp.body.ok);
+        }
+      }
+    );
+
+    if(!opts.callback) {
+      return publicThat;
+    }
+  },
+
   on: function(flag, callback) {
     if(observers[flag]) {
       observers[flag].push(callback);
