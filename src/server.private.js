@@ -271,7 +271,7 @@ host = host || 'localhost';
 port = port || '5984';
 
 //environment and http engine detection
-if(typeof XMLHttpRequest === 'function') {
+if(typeof XMLHttpRequest === 'function' || typeof XMLHttpRequest === 'object') {
   xmlHTTP = new XMLHttpRequest();
 }
 else if(typeof ActiveXObject === 'function') {
