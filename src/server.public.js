@@ -384,8 +384,8 @@ publicThat = {
       throw new Error('Invalid attachment name.');
     }
 
-    if(!opts.data || typeof opts.data !== 'string') {
-      throw new Error('Invalid attachment data - remember to serialize it to a string!');
+	if(!opts.data || (typeof opts.data !== 'string' && ! opts.data instanceof ArrayBuffer)) {
+      throw new Error('Invalid attachment data - string or ArrayBuffer needed !');
     }
 
     if(!opts.contentType || typeof opts.contentType !== 'string') {
@@ -415,6 +415,39 @@ publicThat = {
       url,
       opts.data,
       { 'Content-Type': opts.contentType },
+      opts.callback
+    );
+  },
+
+ deleteAttachment: function(opts) {
+    var url;
+
+    throwIfNoCurrDB();
+
+    if(!opts.name || typeof opts.name !== 'string') {
+      throw new Error('Invalid attachment name.');
+    }
+
+    if(!opts.docID || typeof opts.docID !== 'string') {
+      throw new Error('Invalid docID.');
+    }
+
+	// couchdb doc says rev is mandatory
+    if(!opts.docRev || typeof opts.docRev !== 'string') {
+      throw new Error('Invalid attachment docRev.');
+    }
+
+    if(opts.callback && typeof opts.callback !== 'function') {
+      throw new Error('Invalid callback type.');
+    }
+
+    url = '/' + currDatabase + '/' + opts.docID + '/' + opts.name + '?rev=' + opts.docRev;
+
+    procPacket(
+      'DELETE',
+      url,
+      opts.data,
+      {},
       opts.callback
     );
   },
@@ -653,6 +686,33 @@ publicThat = {
     }
     else {
       throw new Error('Unknown auth type.');
+    }
+  },
+
+  logout: function(opts) {
+    if(typeof opts !== 'object') {
+      throw new Error('Invalid options object.');
+    }
+
+    if(opts.callback && typeof opts.callback !== 'function') {
+      throw new Error('Invalid callback.');
+    }
+
+    procPacket(
+      'DELETE',
+      '/_session',
+      {},
+      {},
+      function(resp) {
+        publicThat.setCookie('AuthSession',null);
+        if(opts.callback) {
+          opts.callback(resp, resp.body.ok);
+        }
+      }
+    );
+
+    if(!opts.callback) {
+      return publicThat;
     }
   },
 

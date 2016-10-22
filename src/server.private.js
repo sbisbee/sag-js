@@ -120,7 +120,7 @@ function procPacket(method, path, data, headers, callback) {
     headers['Content-Type'] = 'application/json';
   }
 
-  if(data && typeof data !== 'string') {
+  if(data && typeof data !== 'string' && !(data instanceof ArrayBuffer)) {
     data = JSON.stringify(data);
   }
 
@@ -225,6 +225,8 @@ function procPacket(method, path, data, headers, callback) {
 
     xmlHTTP.open(method, (useSSL ? 'https://' : 'http://') + host + ':' + port + path);
 
+    xmlHTTP.withCredentials = true;
+
     for(i in headers) {
       if(headers.hasOwnProperty(i)) {
         xmlHTTP.setRequestHeader(i, headers[i]);
@@ -269,7 +271,7 @@ host = host || 'localhost';
 port = port || '5984';
 
 //environment and http engine detection
-if(typeof XMLHttpRequest === 'function') {
+if(typeof XMLHttpRequest === 'function' || typeof XMLHttpRequest === 'object') {
   xmlHTTP = new XMLHttpRequest();
 }
 else if(typeof ActiveXObject === 'function') {
