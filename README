@@ -1,6 +1,10 @@
 Sag-JS
 ======
 
+Note: I have not maintained this project for years since I no longer use
+CouchDB. I assume it still works with CouchDB, but haven't been active in the
+community for a while and won't be testing or responding to bugs.
+
 Version 0.4.0
 http://www.saggingcouch.com
 
